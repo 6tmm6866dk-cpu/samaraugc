@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samara Dias | Portfólio UGC Creator</title>
+<meta name="description" content="Portfólio de Samara Dias, UGC Creator: vídeos autênticos para marcas de beleza, moda, casa, fitness e muito mais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --verde:#0f7b5f;
+    --verde-escuro:#0b5f49;
+    --amarelo:#ffd166;
+    --gelo:#f6f7f5;
+    --branco:#ffffff;
+    --texto:#1c211f;
+    --texto-suave:#5b655f;
+    --linha:#e4e7e3;
+    --raio:20px;
+    --raio-pequeno:12px;
+    --sombra:0 10px 30px rgba(20,30,26,.08);
+    --sombra-forte:0 18px 40px rgba(20,30,26,.14);
+    --altura-header:104px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    font-family:'Manrope',sans-serif;
+    color:var(--texto);
+    background:var(--branco);
+    padding-top:var(--altura-header);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{ max-width:100%; display:block; }
+  h1,h2,h3{ font-family:'Manrope',sans-serif; font-weight:800; line-height:1.15; margin:0 0 .6em; }
+  p{ margin:0 0 1em; color:var(--texto-suave); }
+  a{ color:inherit; }
+  em{ font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; color:var(--verde); }
+  ul{ margin:0; padding:0; list-style:none; }
+  button{ font-family:inherit; cursor:pointer; }
+  input,textarea{ font-family:inherit; font-size:1rem; }
+  section[id]{ scroll-margin-top:var(--altura-header); }
+
+  /* foco visível para navegação por teclado */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:3px solid var(--amarelo);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .skip-link{
+    position:absolute; left:-9999px; top:0; z-index:1000;
+    background:var(--verde); color:#fff; padding:.9rem 1.4rem;
+    border-radius:0 0 12px 0; font-weight:700; text-decoration:none;
+  }
+  .skip-link:focus{ left:0; }
+
+  /* ===== cabeçalho fixo ===== */
+  .site-header{
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    background:var(--branco);
+    box-shadow:0 2px 14px rgba(20,30,26,.06);
+  }
+  .faixa-topo{
+    background:var(--verde); color:#fff; text-align:center;
+    font-size:.82rem; font-weight:700; letter-spacing:.02em;
+    padding:.5rem 1rem;
+  }
+  .nav-container{
+    max-width:1180px; margin:0 auto; padding:.85rem 1.5rem;
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  }
+  .nav-logo{
+    font-weight:800; font-size:1.25rem; text-decoration:none; color:var(--texto);
+  }
+  .nav-menu{
+    display:flex; align-items:center; gap:1.6rem;
+  }
+  .nav-link{
+    text-decoration:none; font-weight:600; font-size:.95rem; color:var(--texto);
+    padding:.3rem 0; border-bottom:2px solid transparent;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .nav-link:hover{ color:var(--verde); border-color:var(--verde); }
+  .nav-cta{
+    background:var(--verde); color:#fff; padding:.6rem 1.1rem;
+    border-radius:999px; border-bottom:none !important;
+  }
+  .nav-cta:hover{ background:var(--verde-escuro); color:#fff; }
+  .nav-toggle{
+    display:none; flex-direction:column; justify-content:center; gap:5px;
+    width:42px; height:38px; background:none; border:1px solid var(--linha);
+    border-radius:10px; padding:0 9px;
+  }
+  .nav-toggle span{
+    display:block; height:2px; width:100%; background:var(--texto); border-radius:2px;
+  }
+
+  @media (max-width:860px){
+    .nav-toggle{ display:flex; }
+    .nav-menu{
+      position:absolute; top:100%; left:0; right:0;
+      flex-direction:column; align-items:stretch; gap:0;
+      background:var(--branco); box-shadow:0 12px 20px rgba(20,30,26,.1);
+      max-height:0; overflow:hidden; transition:max-height .3s ease;
+    }
+    .nav-menu.aberto{ max-height:420px; }
+    .nav-link{ padding:1rem 1.5rem; border-bottom:1px solid var(--linha); }
+    .nav-cta{ margin:.85rem 1.5rem; text-align:center; border-radius:12px; }
+  }
+
+  /* ===== utilidades gerais ===== */
+  .secao{ padding:5rem 1.5rem; max-width:1180px; margin:0 auto; }
+  .secao-cinza{ background:var(--gelo); max-width:none; }
+  .secao-cinza > *{ max-width:1180px; margin-left:auto; margin-right:auto; }
+  .secao h2{ font-size:clamp(1.8rem,4vw,2.6rem); text-align:center; margin-bottom:2.6rem; }
+
+  .botao{
+    display:inline-flex; align-items:center; gap:.4rem; text-decoration:none;
+    font-weight:700; padding:.9rem 1.6rem; border-radius:999px;
+    border:2px solid transparent; transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+  }
+  .botao:hover{ transform:translateY(-2px); box-shadow:var(--sombra); }
+  .botao-primario{ background:var(--verde); color:#fff; }
+  .botao-primario:hover{ background:var(--verde-escuro); }
+  .botao-secundario{ background:var(--branco); color:var(--texto); border-color:var(--linha); }
+  .botao-whats{ background:var(--amarelo); color:#3a2c00; }
+  .botao-mini{ padding:.5rem 1.05rem; font-size:.88rem; }
+
+  .placeholder-bloco{ position:relative; margin:0; }
+  .placeholder-gradiente{
+    width:100%; height:100%; border-radius:var(--raio);
+    background:linear-gradient(135deg,#0f7b5f 0%,#1fae87 45%,#ffd166 100%);
+    min-height:220px;
+  }
+  .legenda-formato{
+    text-align:center; font-size:.78rem; color:var(--texto-suave);
+    margin-top:.5rem;
+  }
+  .selo-novo{
+    position:absolute; top:14px; right:14px; background:var(--amarelo);
+    color:#3a2c00; font-weight:800; font-size:.72rem; letter-spacing:.05em;
+    text-transform:uppercase; padding:.4rem .75rem; border-radius:999px;
+    box-shadow:var(--sombra);
+  }
+
+  /* ===== animação de entrada ===== */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.is-visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ===== 1. capa ===== */
+  #capa{ max-width:none; padding:4rem 1.5rem 0; }
+  .hero-grade{
+    max-width:1180px; margin:0 auto; display:grid;
+    grid-template-columns:1.15fr .85fr; gap:3rem; align-items:center;
+  }
+  .hero-etiqueta{
+    text-transform:uppercase; letter-spacing:.08em; font-size:.85rem;
+    font-weight:700; color:var(--verde); margin-bottom:.8rem;
+  }
+  .hero-etiqueta em{ text-transform:none; letter-spacing:0; font-size:1.15rem; }
+  .hero-conteudo h1{ font-size:clamp(2.6rem,6vw,4.2rem); margin-bottom:.5rem; }
+  .hero-frase{ font-size:1.15rem; max-width:32rem; }
+  .hero-botoes{ display:flex; flex-wrap:wrap; gap:1rem; margin-top:1.6rem; }
+  .hero-foto{ aspect-ratio:4/5; }
+  .hero-foto .placeholder-gradiente{ height:100%; min-height:320px; }
+
+  .hero-numeros{
+    max-width:1180px; margin:3.2rem auto 0; display:grid;
+    grid-template-columns:repeat(3,1fr); gap:1.5rem; text-align:center;
+    border-top:1px solid var(--linha); padding-top:2.4rem;
+  }
+  .hero-numero-valor{ font-size:2.1rem; font-weight:800; color:var(--verde); }
+  .hero-numero-rotulo{ font-size:.88rem; color:var(--texto-suave); }
+
+  .marcas-faixa{
+    max-width:1180px; margin:2.6rem auto 0; padding:1.6rem 0 3rem;
+    border-top:1px solid var(--linha);
+  }
+  .marcas-lista{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:1rem 2.2rem;
+  }
+  .marcas-lista li{
+    font-weight:700; color:var(--texto-suave); font-size:.95rem;
+    letter-spacing:.02em; opacity:.75;
+  }
+
+  @media (max-width:860px){
+    .hero-grade{ grid-template-columns:1fr; }
+    .hero-numeros{ grid-template-columns:1fr; gap:1.4rem; }
+    .hero-foto{ order:-1; max-width:280px; margin:0 auto; }
+  }
+
+  /* ===== 2. sobre ===== */
+  .sobre-grade{
+    display:grid; grid-template-columns:.8fr 1.2fr; gap:3rem; align-items:center;
+  }
+  .sobre-foto{ aspect-ratio:4/5; }
+  .sobre-foto .placeholder-gradiente{ height:100%; min-height:280px; }
+  .promessas{ margin:1.6rem 0; display:grid; gap:.9rem; }
+  .promessas li{
+    display:flex; gap:.7rem; align-items:flex-start; font-weight:600; color:var(--texto);
+  }
+  .promessas li::before{
+    content:"✓"; flex:none; background:var(--verde); color:#fff;
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:.78rem; margin-top:.1rem;
+  }
+  .assinatura{ font-family:'Instrument Serif',serif; font-style:italic; font-size:1.8rem; color:var(--verde); margin-top:1.2rem; }
+
+  @media (max-width:860px){ .sobre-grade{ grid-template-columns:1fr; } .sobre-foto{ max-width:280px; margin:0 auto; } }
+
+  /* ===== 3. destaques ===== */
+  .destaques-grade{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1.8rem;
+  }
+  .destaque-card{
+    display:block; text-decoration:none; color:inherit; background:var(--branco);
+    border-radius:var(--raio); box-shadow:var(--sombra); overflow:hidden;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .destaque-card:hover{ transform:translateY(-6px); box-shadow:var(--sombra-forte); }
+  .destaque-capa{ aspect-ratio:9/16; border-radius:0; }
+  .destaque-capa .placeholder-gradiente{ height:100%; border-radius:0; min-height:0; }
+  .botao-play{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,.92);
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem;
+    color:var(--verde); box-shadow:var(--sombra);
+  }
+  .destaque-capa figcaption{ display:none; }
+  .destaque-corpo{ padding:1.4rem; }
+  .destaque-numero{ font-size:1.6rem; font-weight:800; color:var(--verde); margin-bottom:.3rem; }
+  .destaque-rotulo{ font-size:.8rem; font-weight:600; color:var(--texto-suave); display:block; }
+  .destaque-corpo h3{ font-size:1.1rem; margin:.3rem 0; }
+  .destaque-contexto{ font-size:.92rem; margin:0; }
+
+  @media (max-width:860px){ .destaques-grade{ grid-template-columns:1fr; } }
+
+  /* ===== 4. trabalhos ===== */
+  .filtros{ display:flex; flex-wrap:wrap; gap:.7rem; justify-content:center; margin-bottom:2.4rem; }
+  .filtro-botao{
+    background:var(--branco); border:1.5px solid var(--linha); border-radius:999px;
+    padding:.55rem 1.2rem; font-weight:700; font-size:.88rem; color:var(--texto-suave);
+    transition:all .2s ease;
+  }
+  .filtro-botao:hover{ border-color:var(--verde); color:var(--verde); }
+  .filtro-botao[aria-pressed="true"]{ background:var(--verde); border-color:var(--verde); color:#fff; }
+
+  .trabalhos-grade{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1.8rem;
+  }
+  .trabalho-card{
+    background:var(--branco); border:1px solid var(--linha); border-radius:var(--raio);
+    box-shadow:var(--sombra); overflow:hidden; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .trabalho-card:hover{ transform:translateY(-6px); box-shadow:var(--sombra-forte); }
+  .trabalho-card.escondido{ display:none; }
+  .trabalho-capa{ aspect-ratio:4/5; margin:0; }
+  .trabalho-capa .placeholder-gradiente{ height:100%; border-radius:0; min-height:0; }
+  .trabalho-capa figcaption{
+    position:absolute; bottom:0; left:0; right:0; background:rgba(20,30,26,.55);
+    color:#fff; font-size:.72rem; padding:.4rem .7rem; margin:0;
+  }
+  .trabalho-corpo{ padding:1.3rem; }
+  .estrelas{ color:var(--amarelo); letter-spacing:.15em; font-size:.95rem; margin-bottom:.5rem; }
+  .trabalho-corpo h3{ font-size:1.05rem; margin-bottom:.2rem; }
+  .trabalho-marca{ font-size:.85rem; font-weight:600; color:var(--verde); text-transform:uppercase; letter-spacing:.03em; }
+  .trabalho-rodape{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-top:1rem; }
+  .etiqueta-consulta{
+    background:var(--gelo); border:1px solid var(--linha); border-radius:999px;
+    padding:.4rem .8rem; font-size:.76rem; font-weight:700; color:var(--texto-suave);
+  }
+
+  /* ===== 5. serviços ===== */
+  .servicos-grade{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.8rem; }
+  .servico-card{
+    background:var(--branco); border-radius:var(--raio); box-shadow:var(--sombra);
+    padding:2rem 1.8rem; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .servico-card:hover{ transform:translateY(-6px); box-shadow:var(--sombra-forte); }
+  .servico-numero{
+    display:inline-block; font-family:'Instrument Serif',serif; font-style:italic;
+    font-size:2.4rem; color:var(--amarelo); -webkit-text-stroke:1.5px var(--verde);
+    margin-bottom:.4rem;
+  }
+  .servico-card h3{ font-size:1.15rem; }
+  .servico-card p{ font-size:.94rem; margin:0; }
+
+  @media (max-width:860px){ .servicos-grade{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .servicos-grade{ grid-template-columns:1fr; } }
+
+  /* ===== 6. números e depoimentos ===== */
+  .metricas-grade{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; margin-bottom:3.4rem;
+  }
+  .metrica-card{
+    text-align:center; background:var(--branco); border:1px solid var(--linha);
+    border-radius:var(--raio); padding:2rem 1rem;
+  }
+  .metrica-valor{ font-size:2.4rem; font-weight:800; color:var(--verde); margin:0; }
+  .metrica-valor.placeholder{ color:var(--texto-suave); font-style:italic; }
+  .metrica-rotulo{ font-size:.88rem; color:var(--texto-suave); margin:0; }
+
+  .resultados-grade{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-bottom:3.4rem; }
+  .resultado-card{
+    background:var(--gelo); border-radius:var(--raio); padding:1.8rem;
+    border:1px dashed var(--linha);
+  }
+  .resultado-marca{ text-transform:uppercase; font-size:.78rem; font-weight:700; color:var(--verde); letter-spacing:.04em; }
+  .resultado-card h3{ font-size:1.1rem; }
+  .resultado-card p:last-child{ margin:0; font-size:.92rem; }
+
+  .depoimentos-grade{ display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .depoimento-card{
+    margin:0; background:var(--branco); border:1px solid var(--linha);
+    border-radius:var(--raio); padding:1.8rem; box-shadow:var(--sombra);
+  }
+  .depoimento-card p{ font-size:1rem; color:var(--texto); }
+  .depoimento-card footer{ font-size:.85rem; color:var(--texto-suave); }
+  .depoimento-card cite{ font-style:normal; font-weight:700; color:var(--verde); }
+
+  @media (max-width:860px){
+    .metricas-grade{ grid-template-columns:1fr 1fr; }
+    .resultados-grade{ grid-template-columns:1fr; }
+    .depoimentos-grade{ grid-template-columns:1fr; }
+  }
+
+  /* ===== 7. contato ===== */
+  .contato-grade{ display:grid; grid-template-columns:1.2fr .8fr; gap:3rem; align-items:start; }
+  #form-contato{ display:grid; gap:1.1rem; background:var(--branco); padding:2rem; border-radius:var(--raio); box-shadow:var(--sombra); }
+  #form-contato label{ display:grid; gap:.4rem; font-weight:700; font-size:.9rem; }
+  #form-contato input, #form-contato textarea{
+    border:1.5px solid var(--linha); border-radius:var(--raio-pequeno);
+    padding:.8rem 1rem; font-weight:500; resize:vertical;
+  }
+  #form-contato input:focus, #form-contato textarea:focus{ border-color:var(--verde); }
+  #form-confirmacao{
+    background:var(--gelo); border:1px solid var(--verde); color:var(--verde-escuro);
+    border-radius:var(--raio-pequeno); padding:1rem; font-weight:700; margin:0;
+  }
+  .contato-links{ display:grid; gap:1rem; align-content:start; }
+  .contato-links .botao{ justify-content:center; }
+
+  @media (max-width:860px){ .contato-grade{ grid-template-columns:1fr; } }
+
+  /* ===== rodapé ===== */
+  .rodape{
+    background:var(--texto); color:#fff; text-align:center; padding:3rem 1.5rem;
+  }
+  .rodape p{ color:rgba(255,255,255,.75); margin:.3rem 0; }
+  .rodape p:first-child{ font-weight:800; font-size:1.3rem; color:#fff; }
+  .rodape-redes{ display:flex; flex-wrap:wrap; justify-content:center; gap:1.4rem; margin:1rem 0; }
+  .rodape-redes a{ text-decoration:none; color:rgba(255,255,255,.85); font-weight:600; }
+  .rodape-redes a:hover{ color:var(--amarelo); }
+
+  /* ===== card de captura (mídia kit) ===== */
+  .modal-fundo{
+    position:fixed; inset:0; background:rgba(20,30,26,.55); z-index:500;
+    display:flex; align-items:center; justify-content:center; padding:1.5rem;
+  }
+  .modal-fundo[hidden]{ display:none; }
+  .modal{
+    position:relative; background:var(--branco); border-radius:var(--raio);
+    max-width:26rem; width:100%; padding:2.4rem 2rem 2rem; box-shadow:var(--sombra-forte);
+  }
+  .modal h2{ font-size:1.4rem; margin-bottom:.5rem; }
+  .modal p{ font-size:.92rem; }
+  .modal-fechar{
+    position:absolute; top:.9rem; right:.9rem; width:34px; height:34px;
+    border-radius:50%; border:1px solid var(--linha); background:var(--gelo);
+    font-size:1.2rem; line-height:1; color:var(--texto-suave);
+  }
+  #form-modal{ display:grid; gap:1rem; margin-top:1rem; }
+  #form-modal label{ display:grid; gap:.35rem; font-weight:700; font-size:.88rem; }
+  #form-modal input{
+    border:1.5px solid var(--linha); border-radius:var(--raio-pequeno); padding:.75rem .9rem;
+  }
+  #form-modal input:focus{ border-color:var(--verde); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="site-header">
+  <p class="faixa-topo">Entrega em até 72h úteis</p>
+  <div class="nav-container">
+    <a href="#capa" class="nav-logo">Samara Dias</a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Abrir menu</span>
+    </button>
+    <nav class="nav-menu" id="nav-menu" aria-label="Navegação principal">
+      <a class="nav-link" href="#sobre">Sobre</a>
+      <a class="nav-link" href="#destaques">Destaques</a>
+      <a class="nav-link" href="#trabalhos">Trabalhos</a>
+      <a class="nav-link" href="#servicos">Serviços</a>
+      <a class="nav-link" href="#numeros">Números</a>
+      <a class="nav-link nav-cta" href="#contato">Contato</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+  <!-- 1. CAPA -->
+  <section id="capa" aria-label="Apresentação">
+    <div class="hero-grade">
+      <div class="hero-conteudo">
+        <p class="hero-etiqueta">UGC Creator <em>em destaque</em></p>
+        <h1>Samara Dias</h1>
+        <p class="hero-frase">Eu crio vídeos autênticos que mostram o seu produto sendo usado de verdade, prontos para virar anúncio ou postar no seu perfil.</p>
+        <div class="hero-botoes">
+          <a href="#contato" class="botao botao-primario">Falar comigo</a>
+          <a href="#trabalhos" class="botao botao-secundario">Ver os trabalhos</a>
+        </div>
+      </div>
+      <figure class="hero-foto placeholder-bloco">
+        <!-- Troque este bloco por <img src="sua-foto.jpg" alt="Samara Dias"> -->
+        <div class="placeholder-gradiente" role="img" aria-label="Foto de Samara Dias, formato vertical 4:5. Troque por uma imagem real."></div>
+        <span class="selo-novo">novo</span>
+        <figcaption class="legenda-formato">foto da creator, formato 4:5</figcaption>
+      </figure>
+    </div>
+
+    <div class="hero-numeros" id="hero-numeros"><!-- preenchido via JS a partir de METRICAS --></div>
+
+    <div class="marcas-faixa">
+      <ul class="marcas-lista" id="marcas-lista"><!-- preenchido via JS a partir de MARCAS --></ul>
+    </div>
+  </section>
+
+  <!-- 2. SOBRE MIM -->
+  <section id="sobre" class="secao" aria-labelledby="sobre-titulo">
+    <h2 id="sobre-titulo">Sobre <em>mim</em></h2>
+    <div class="sobre-grade">
+      <figure class="sobre-foto placeholder-bloco reveal">
+        <!-- Troque este bloco por <img src="sua-foto-sobre.jpg" alt="Samara Dias sorrindo"> -->
+        <div class="placeholder-gradiente" role="img" aria-label="Foto de Samara Dias, formato vertical 4:5. Troque por uma imagem real."></div>
+        <figcaption class="legenda-formato">foto da creator, formato 4:5</figcaption>
+      </figure>
+      <div class="sobre-texto reveal">
+        <p>Oi, eu sou a Samara. Moro na Holanda e transformo produtos em vídeos que parecem uma recomendação de amiga, porque é exatamente isso que eu entrego: conteúdo autêntico, gravado com carinho e pensado para performar tanto no seu perfil quanto em anúncio.</p>
+        <p>Trabalho com marcas de beleza, skincare, moda, comida, casa e decoração, fitness, maternidade, viagem e tech. Gosto de entender o produto antes de gravar, para que o vídeo pareça real, porque é real.</p>
+        <ul class="promessas">
+          <li>Roteiro aprovado antes de gravar</li>
+          <li>Uma rodada de ajuste inclusa</li>
+          <li>Entrega em até 72 horas úteis</li>
+        </ul>
+        <p class="assinatura">Samara Dias</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. CONTEÚDOS DE DESTAQUE -->
+  <section id="destaques" class="secao secao-cinza" aria-labelledby="destaques-titulo">
+    <h2 id="destaques-titulo">Conteúdos de <em>destaque</em></h2>
+    <div class="destaques-grade" id="destaques-grade"><!-- preenchido via JS a partir de DESTAQUES --></div>
+  </section>
+
+  <!-- 4. TRABALHOS POR NICHO -->
+  <section id="trabalhos" class="secao" aria-labelledby="trabalhos-titulo">
+    <h2 id="trabalhos-titulo">Trabalhos por <em>nicho</em></h2>
+    <div class="filtros" id="filtros" role="group" aria-label="Filtrar trabalhos por nicho"><!-- preenchido via JS a partir de NICHOS --></div>
+    <div class="trabalhos-grade" id="trabalhos-grade"><!-- preenchido via JS a partir de TRABALHOS --></div>
+  </section>
+
+  <!-- 5. COMO EU TE AJUDO -->
+  <section id="servicos" class="secao secao-cinza" aria-labelledby="servicos-titulo">
+    <h2 id="servicos-titulo">Como eu te <em>ajudo</em></h2>
+    <div class="servicos-grade" id="servicos-grade"><!-- preenchido via JS a partir de SERVICOS --></div>
+  </section>
+
+  <!-- 6. NÚMEROS E DEPOIMENTOS -->
+  <section id="numeros" class="secao" aria-labelledby="numeros-titulo">
+    <h2 id="numeros-titulo">Números e <em>depoimentos</em></h2>
+    <div class="metricas-grade" id="metricas-grade"><!-- preenchido via JS a partir de METRICAS --></div>
+    <div class="resultados-grade" id="resultados-grade"><!-- preenchido via JS a partir de RESULTADOS --></div>
+    <div class="depoimentos-grade" id="depoimentos-grade"><!-- preenchido via JS a partir de DEPOIMENTOS --></div>
+  </section>
+
+  <!-- 7. BORA CRIAR JUNTOS -->
+  <section id="contato" class="secao secao-cinza" aria-labelledby="contato-titulo">
+    <h2 id="contato-titulo">Bora criar <em>juntos</em></h2>
+    <div class="contato-grade">
+      <form id="form-contato" class="reveal" novalidate>
+        <label for="campo-nome">Nome
+          <input id="campo-nome" name="nome" type="text" autocomplete="name" required>
+        </label>
+        <label for="campo-email">E-mail
+          <input id="campo-email" name="email" type="email" autocomplete="email" required>
+        </label>
+        <label for="campo-mensagem">Mensagem
+          <textarea id="campo-mensagem" name="mensagem" rows="5" required></textarea>
+        </label>
+        <button type="submit" class="botao botao-primario">Enviar mensagem</button>
+        <p id="form-confirmacao" role="status" aria-live="polite" hidden>Mensagem enviada! Em breve eu te respondo. Obrigada pelo contato.</p>
+      </form>
+      <div class="contato-links reveal">
+        <a class="botao botao-whats" href="https://wa.me/31685715097" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+        <a class="botao botao-secundario" href="mailto:ugcsamara@gmail.com">Enviar e-mail</a>
+        <a class="botao botao-secundario" href="https://instagram.com/samaragtdias" target="_blank" rel="noopener">Ver Instagram</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 8. RODAPÉ -->
+<footer class="rodape">
+  <p>Samara Dias</p>
+  <div class="rodape-redes">
+    <a href="https://instagram.com/samaragtdias" target="_blank" rel="noopener">@samaragtdias</a>
+    <a href="mailto:ugcsamara@gmail.com">ugcsamara@gmail.com</a>
+    <a href="https://wa.me/31685715097" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <p>Holanda</p>
+  <p>© <span id="ano"></span> Samara Dias. Todos os direitos reservados.</p>
+</footer>
+
+<!-- card de captura: mídia kit -->
+<div class="modal-fundo" id="modal-fundo" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <button type="button" class="modal-fechar" id="modal-fechar" aria-label="Fechar">×</button>
+    <h2 id="modal-titulo">Quer meu mídia kit completo?</h2>
+    <p>Deixe seu nome e e-mail que eu te envio com todos os meus números e conteúdos.</p>
+    <form id="form-modal">
+      <label for="modal-nome">Nome
+        <input id="modal-nome" name="nome" type="text" required>
+      </label>
+      <label for="modal-email">E-mail
+        <input id="modal-email" name="email" type="email" required>
+      </label>
+      <button type="submit" class="botao botao-primario">Quero receber</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     DADOS: edite os arrays abaixo para atualizar o portfólio
+     sem precisar mexer no HTML.
+     ========================================================= */
+
+  // Marcas atendidas (faixa que fecha a capa)
+  var MARCAS = ["Marca 01","Marca 02","Marca 03","Marca 04","Marca 05","Marca 06","Marca 07","Marca 08","Marca 09","Marca 10","Marca 11","Marca 12"];
+
+  // Conteúdos de destaque (3 vídeos em evidência)
+  var DESTAQUES = [
+    {
+      // TROQUE AQUI: link do vídeo (Reels, TikTok, Youtube Shorts etc.)
+      linkVideo: "#",
+      // TROQUE AQUI: descrição da imagem de capa vertical 9:16 (troque o placeholder por uma imagem real no HTML gerado)
+      capaDescricao: "capa vertical do vídeo de rotina de skincare, formato 9:16",
+      numero: "+000K",
+      rotulo: "views no reels, edite este número",
+      titulo: "Rotina de skincare em 3 passos",
+      contexto: "Vídeo vertical mostrando o passo a passo do produto em uso real, gravado em cenário de banheiro."
+    },
+    {
+      linkVideo: "#",
+      capaDescricao: "capa vertical do vídeo de unboxing de moda, formato 9:16",
+      numero: "+000K",
+      rotulo: "views no reels, edite este número",
+      titulo: "Unboxing de uma nova coleção",
+      contexto: "Reação genuína ao abrir a caixa, com prova de roupa e comentários espontâneos sobre o caimento."
+    },
+    {
+      linkVideo: "#",
+      capaDescricao: "capa vertical do vídeo de receita rápida, formato 9:16",
+      numero: "+000K",
+      rotulo: "views no reels, edite este número",
+      titulo: "Receita rápida com o produto",
+      contexto: "Vídeo dinâmico de cozinha mostrando o produto sendo usado do início ao fim do preparo."
+    }
+  ];
+
+  // Nichos atendidos (usados nos filtros da galeria de trabalhos)
+  var NICHOS = ["todos","beleza","skincare","moda","comida","casa e decoração","fitness","maternidade","viagem","tech"];
+
+  // Trabalhos por nicho (galeria com filtro)
+  var TRABALHOS = [
+    { nicho:"beleza", titulo:"Vídeo UGC de maquiagem do dia a dia", marca:"Marca 01", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"skincare", titulo:"Rotina noturna com sérum e hidratante", marca:"Marca 02", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"moda", titulo:"Look completo com peças da nova coleção", marca:"Marca 03", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"comida", titulo:"Receita prática usando o produto", marca:"Marca 04", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"casa e decoração", titulo:"Tour rápido mostrando o item na decoração", marca:"Marca 05", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"fitness", titulo:"Treino em casa usando o produto", marca:"Marca 06", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"maternidade", titulo:"Rotina com o bebê usando o produto", marca:"Marca 07", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"viagem", titulo:"Malinha de viagem com os itens essenciais", marca:"Marca 08", formato:"foto do trabalho, formato 4:5" },
+    { nicho:"tech", titulo:"Unboxing e primeiras impressões do gadget", marca:"Marca 09", formato:"foto do trabalho, formato 4:5" }
+  ];
+
+  // Serviços oferecidos
+  var SERVICOS = [
+    { numero:"01", titulo:"Vídeo UGC", descricao:"Vídeo autêntico estilo depoimento, gravado com o seu produto em uso real, pronto para anúncio ou perfil." },
+    { numero:"02", titulo:"Corte para anúncio", descricao:"Edição enxuta com corte dinâmico, legenda e gancho pensados para performance em Meta Ads e TikTok Ads." },
+    { numero:"03", titulo:"Fotos do produto", descricao:"Still e still motion do produto com boa luz e composição, prontos para loja virtual e redes sociais." },
+    { numero:"04", titulo:"Unboxing", descricao:"Vídeo de unboxing com reação genuína, mostrando a experiência de abrir e usar o produto pela primeira vez." },
+    { numero:"05", titulo:"Publicação no meu perfil", descricao:"Postagem do conteúdo direto no meu Instagram, levando a sua marca até a minha audiência." },
+    { numero:"06", titulo:"Pacote mensal", descricao:"Combo recorrente com um volume combinado de vídeos por mês, com prioridade na agenda e valor especial." }
+  ];
+
+  // Métricas com contador animado.
+  // "placeholder: true" mostra o valor como texto fixo (000) até você editar com o número real.
+  var METRICAS = [
+    { valor:0, sufixo:"+", rotulo:"vídeos entregues", placeholder:true },
+    { valor:0, sufixo:"+", rotulo:"marcas atendidas", placeholder:true },
+    { valor:0, sufixo:"+", rotulo:"views somadas", placeholder:true },
+    { valor:9, sufixo:"", rotulo:"nichos atendidos", placeholder:false }
+  ];
+
+  // Resultados de campanha (edite com dados reais quando tiver)
+  var RESULTADOS = [
+    { marca:"Marca 01", titulo:"Campanha 01", resultado:"Edite este card com o resultado real da campanha, como alcance, cliques ou vendas." },
+    { marca:"Marca 02", titulo:"Campanha 02", resultado:"Edite este card com o resultado real da campanha, como alcance, cliques ou vendas." },
+    { marca:"Marca 03", titulo:"Campanha 03", resultado:"Edite este card com o resultado real da campanha, como alcance, cliques ou vendas." }
+  ];
+
+  // Depoimentos de clientes
+  var DEPOIMENTOS = [
+    { nome:"Cliente 01", empresa:"Empresa 01", texto:"Escreva aqui o depoimento do seu cliente sobre o trabalho." },
+    { nome:"Cliente 02", empresa:"Empresa 02", texto:"Escreva aqui o depoimento do seu cliente sobre o trabalho." },
+    { nome:"Cliente 03", empresa:"Empresa 03", texto:"Escreva aqui o depoimento do seu cliente sobre o trabalho." },
+    { nome:"Cliente 04", empresa:"Empresa 04", texto:"Escreva aqui o depoimento do seu cliente sobre o trabalho." }
+  ];
+
+  /* =========================================================
+     RENDERIZAÇÃO
+     ========================================================= */
+
+  function placeholderBloco(aria){
+    return '<div class="placeholder-gradiente" role="img" aria-label="'+aria+'"></div>';
+  }
+
+  function renderMarcas(){
+    var lista = document.getElementById("marcas-lista");
+    lista.innerHTML = MARCAS.map(function(m){ return "<li>"+m+"</li>"; }).join("");
+  }
+
+  function renderHeroNumeros(){
+    var alvo = document.getElementById("hero-numeros");
+    var tresPrimeiras = METRICAS.slice(0,3);
+    alvo.innerHTML = tresPrimeiras.map(function(m){
+      var texto = m.placeholder ? "000" : (m.valor + m.sufixo);
+      return '<div class="hero-numero">' +
+        '<p class="hero-numero-valor">'+texto+'</p>' +
+        '<p class="hero-numero-rotulo">'+m.rotulo+'</p>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderDestaques(){
+    var alvo = document.getElementById("destaques-grade");
+    alvo.innerHTML = DESTAQUES.map(function(d){
+      return '<a class="destaque-card reveal" href="'+d.linkVideo+'" target="_blank" rel="noopener" aria-label="Assistir ao vídeo: '+d.titulo+'">' +
+        '<figure class="destaque-capa placeholder-bloco">' +
+          placeholderBloco("Capa vertical 9:16 do vídeo "+d.titulo+". Troque por uma imagem real de capa.") +
+          '<span class="botao-play" aria-hidden="true">&#9654;</span>' +
+          '<figcaption>'+d.capaDescricao+'</figcaption>' +
+        '</figure>' +
+        '<div class="destaque-corpo">' +
+          '<p class="destaque-numero">'+d.numero+' <span class="destaque-rotulo">'+d.rotulo+'</span></p>' +
+          '<h3>'+d.titulo+'</h3>' +
+          '<p class="destaque-contexto">'+d.contexto+'</p>' +
+        '</div>' +
+      '</a>';
+    }).join("");
+  }
+
+  function renderFiltros(){
+    var alvo = document.getElementById("filtros");
+    alvo.innerHTML = NICHOS.map(function(n,i){
+      var rotulo = n.charAt(0).toUpperCase() + n.slice(1);
+      return '<button type="button" class="filtro-botao" data-nicho="'+n+'" aria-pressed="'+(i===0?"true":"false")+'">'+rotulo+'</button>';
+    }).join("");
+
+    alvo.addEventListener("click", function(evento){
+      var botao = evento.target.closest(".filtro-botao");
+      if(!botao) return;
+      alvo.querySelectorAll(".filtro-botao").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+      botao.setAttribute("aria-pressed","true");
+      filtrarTrabalhos(botao.getAttribute("data-nicho"));
+    });
+  }
+
+  function renderTrabalhos(){
+    var alvo = document.getElementById("trabalhos-grade");
+    alvo.innerHTML = TRABALHOS.map(function(t){
+      return '<article class="trabalho-card reveal" data-nicho="'+t.nicho+'">' +
+        '<figure class="trabalho-capa placeholder-bloco">' +
+          placeholderBloco("Foto do trabalho para "+t.marca+", nicho de "+t.nicho+". Troque por uma imagem real.") +
+          '<span class="selo-novo">novo</span>' +
+          '<figcaption>'+t.formato+'</figcaption>' +
+        '</figure>' +
+        '<div class="trabalho-corpo">' +
+          '<div class="estrelas" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
+          '<span class="sr-only">Avaliação 5 de 5 estrelas</span>' +
+          '<h3>'+t.titulo+'</h3>' +
+          '<p class="trabalho-marca">'+t.marca+'</p>' +
+          '<div class="trabalho-rodape">' +
+            '<span class="etiqueta-consulta">sob consulta</span>' +
+            '<a href="#contato" class="botao botao-primario botao-mini">Contratar &rarr;</a>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join("");
+  }
+
+  function filtrarTrabalhos(nicho){
+    document.querySelectorAll(".trabalho-card").forEach(function(card){
+      var mostra = nicho === "todos" || card.getAttribute("data-nicho") === nicho;
+      card.classList.toggle("escondido", !mostra);
+    });
+  }
+
+  function renderServicos(){
+    var alvo = document.getElementById("servicos-grade");
+    alvo.innerHTML = SERVICOS.map(function(s){
+      return '<div class="servico-card reveal">' +
+        '<span class="servico-numero" aria-hidden="true">'+s.numero+'</span>' +
+        '<h3>'+s.titulo+'</h3>' +
+        '<p>'+s.descricao+'</p>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderMetricas(){
+    var alvo = document.getElementById("metricas-grade");
+    alvo.innerHTML = METRICAS.map(function(m){
+      var classe = "metrica-valor" + (m.placeholder ? " placeholder" : "");
+      return '<div class="metrica-card reveal">' +
+        '<p class="'+classe+'" data-valor="'+m.valor+'" data-sufixo="'+m.sufixo+'" data-placeholder="'+m.placeholder+'">000</p>' +
+        '<p class="metrica-rotulo">'+m.rotulo+'</p>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderResultados(){
+    var alvo = document.getElementById("resultados-grade");
+    alvo.innerHTML = RESULTADOS.map(function(r){
+      return '<div class="resultado-card reveal">' +
+        '<p class="resultado-marca">'+r.marca+'</p>' +
+        '<h3>'+r.titulo+'</h3>' +
+        '<p>'+r.resultado+'</p>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderDepoimentos(){
+    var alvo = document.getElementById("depoimentos-grade");
+    alvo.innerHTML = DEPOIMENTOS.map(function(d){
+      return '<blockquote class="depoimento-card reveal">' +
+        '<p>&ldquo;'+d.texto+'&rdquo;</p>' +
+        '<footer><cite>'+d.nome+'</cite>, '+d.empresa+'</footer>' +
+      '</blockquote>';
+    }).join("");
+  }
+
+  /* =========================================================
+     MENU MÓVEL
+     ========================================================= */
+  function iniciarMenu(){
+    var botao = document.getElementById("nav-toggle");
+    var menu = document.getElementById("nav-menu");
+    botao.addEventListener("click", function(){
+      var aberto = menu.classList.toggle("aberto");
+      botao.setAttribute("aria-expanded", aberto ? "true" : "false");
+    });
+    menu.querySelectorAll(".nav-link").forEach(function(link){
+      link.addEventListener("click", function(){
+        menu.classList.remove("aberto");
+        botao.setAttribute("aria-expanded","false");
+      });
+    });
+  }
+
+  /* =========================================================
+     ANIMAÇÃO DE ENTRADA (IntersectionObserver)
+     ========================================================= */
+  function iniciarRevelacao(reduzido){
+    var elementos = document.querySelectorAll(".reveal");
+    if(reduzido || !("IntersectionObserver" in window)){
+      elementos.forEach(function(el){ el.classList.add("is-visible"); });
+      return;
+    }
+    var observador = new IntersectionObserver(function(entradas){
+      entradas.forEach(function(entrada){
+        if(entrada.isIntersecting){
+          entrada.target.classList.add("is-visible");
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold:.15, rootMargin:"0px 0px -60px 0px" });
+    elementos.forEach(function(el){ observador.observe(el); });
+  }
+
+  /* =========================================================
+     CONTADOR ANIMADO
+     ========================================================= */
+  function iniciarContadores(reduzido){
+    var valores = document.querySelectorAll(".metrica-valor");
+
+    function definirFinal(el){
+      var placeholder = el.getAttribute("data-placeholder") === "true";
+      var sufixo = el.getAttribute("data-sufixo") || "";
+      if(placeholder){ el.textContent = "000"; return; }
+      el.textContent = el.getAttribute("data-valor") + sufixo;
+    }
+
+    if(reduzido || !("IntersectionObserver" in window)){
+      valores.forEach(definirFinal);
+      return;
+    }
+
+    function animar(el){
+      var placeholder = el.getAttribute("data-placeholder") === "true";
+      if(placeholder){ el.textContent = "000"; return; }
+      var alvo = parseInt(el.getAttribute("data-valor"),10) || 0;
+      var sufixo = el.getAttribute("data-sufixo") || "";
+      var inicio = null;
+      var duracao = 1200;
+      function passo(tempo){
+        if(inicio === null) inicio = tempo;
+        var progresso = Math.min((tempo - inicio) / duracao, 1);
+        var atual = Math.floor(progresso * alvo);
+        el.textContent = atual + sufixo;
+        if(progresso < 1){ requestAnimationFrame(passo); }
+        else{ el.textContent = alvo + sufixo; }
+      }
+      requestAnimationFrame(passo);
+    }
+
+    var observador = new IntersectionObserver(function(entradas){
+      entradas.forEach(function(entrada){
+        if(entrada.isIntersecting){
+          animar(entrada.target);
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold:.6 });
+    valores.forEach(function(el){ observador.observe(el); });
+  }
+
+  /* =========================================================
+     FORMULÁRIO DE CONTATO
+     ========================================================= */
+  function iniciarFormularioContato(){
+    var form = document.getElementById("form-contato");
+    var confirmacao = document.getElementById("form-confirmacao");
+    form.addEventListener("submit", function(evento){
+      evento.preventDefault();
+      if(!form.checkValidity()){ form.reportValidity(); return; }
+      Array.prototype.forEach.call(form.elements, function(campo){
+        if(campo.tagName === "INPUT" || campo.tagName === "TEXTAREA"){ campo.hidden = true; }
+      });
+      form.querySelectorAll("label").forEach(function(l){ l.hidden = true; });
+      form.querySelector("button[type=submit]").hidden = true;
+      confirmacao.hidden = false;
+    });
+  }
+
+  /* =========================================================
+     CARD DE CAPTURA (MÍDIA KIT)
+     ========================================================= */
+  function iniciarModal(){
+    var fundo = document.getElementById("modal-fundo");
+    var modal = fundo.querySelector(".modal");
+    var fechar = document.getElementById("modal-fechar");
+    var formModal = document.getElementById("form-modal");
+    var elementoFocadoAntes = null;
+
+    function abrirModal(){
+      if(sessionStorage.getItem("samaraMidiaKitVisto") === "1") return;
+      elementoFocadoAntes = document.activeElement;
+      fundo.hidden = false;
+      sessionStorage.setItem("samaraMidiaKitVisto","1");
+      var primeiroCampo = document.getElementById("modal-nome");
+      if(primeiroCampo) primeiroCampo.focus();
+      document.addEventListener("keydown", aoTeclar);
+    }
+
+    function fecharModal(){
+      fundo.hidden = true;
+      document.removeEventListener("keydown", aoTeclar);
+      if(elementoFocadoAntes) elementoFocadoAntes.focus();
+    }
+
+    function aoTeclar(evento){
+      if(evento.key === "Escape"){ fecharModal(); }
+    }
+
+    fechar.addEventListener("click", fecharModal);
+    fundo.addEventListener("click", function(evento){
+      if(evento.target === fundo){ fecharModal(); }
+    });
+    formModal.addEventListener("submit", function(evento){
+      evento.preventDefault();
+      modal.innerHTML = '<button type="button" class="modal-fechar" id="modal-fechar-2" aria-label="Fechar">&times;</button>' +
+        '<h2>Recebido!</h2><p role="status">Obrigada! Em breve o mídia kit chega no seu e-mail.</p>';
+      document.getElementById("modal-fechar-2").addEventListener("click", fecharModal);
+    });
+
+    if(sessionStorage.getItem("samaraMidiaKitVisto") !== "1"){
+      setTimeout(abrirModal, 7000);
+    }
+  }
+
+  /* =========================================================
+     INICIALIZAÇÃO
+     ========================================================= */
+  document.addEventListener("DOMContentLoaded", function(){
+    var reduzido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    renderMarcas();
+    renderHeroNumeros();
+    renderDestaques();
+    renderFiltros();
+    renderTrabalhos();
+    renderServicos();
+    renderMetricas();
+    renderResultados();
+    renderDepoimentos();
+
+    iniciarMenu();
+    iniciarRevelacao(reduzido);
+    iniciarContadores(reduzido);
+    iniciarFormularioContato();
+    iniciarModal();
+
+    document.getElementById("ano").textContent = new Date().getFullYear();
+  });
+})();
+</script>
+</body>
+</html>
