@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrar | Samara Dias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vanilla:#cfe0bc;
+    --vanilla-escuro:#49622d;
+    --amarelo:#ffd166;
+    --gelo:#f6f7f5;
+    --branco:#ffffff;
+    --texto:#1c211f;
+    --texto-suave:#5b655f;
+    --linha:#e4e7e3;
+    --raio:20px;
+    --raio-pequeno:12px;
+    --sombra:0 10px 30px rgba(20,30,26,.08);
+    --erro:#b3261e;
+    --erro-fundo:#fbeae9;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    font-family:'Manrope',sans-serif; color:var(--texto); background:var(--gelo);
+    padding:1.5rem; line-height:1.5;
+  }
+  a{ color:var(--vanilla-escuro); }
+  .cartao{
+    width:100%; max-width:24rem; background:var(--branco); border-radius:var(--raio);
+    box-shadow:var(--sombra); padding:2.4rem 2rem;
+  }
+  .cartao[hidden]{ display:none; }
+  .logo{ font-weight:800; font-size:1.15rem; margin:0 0 .3rem; }
+  .subtitulo{ color:var(--texto-suave); font-size:.9rem; margin:0 0 1.8rem; }
+  form{ display:grid; gap:1.1rem; }
+  label{ display:grid; gap:.4rem; font-weight:700; font-size:.88rem; }
+  input{
+    font-family:inherit; font-size:1rem; border:1.5px solid var(--linha);
+    border-radius:var(--raio-pequeno); padding:.75rem .9rem;
+  }
+  input:focus-visible{ outline:3px solid var(--amarelo); outline-offset:1px; border-color:var(--vanilla-escuro); }
+  button{
+    font-family:inherit; cursor:pointer; border:none; border-radius:999px;
+    background:var(--vanilla); color:var(--texto); font-weight:700; font-size:.95rem;
+    padding:.85rem 1.4rem; transition:background .15s ease;
+  }
+  button:hover{ background:var(--vanilla-escuro); color:#fff; }
+  button:disabled{ opacity:.6; cursor:default; }
+  button:focus-visible{ outline:3px solid var(--amarelo); outline-offset:2px; }
+  .faixa-erro{
+    background:var(--erro-fundo); color:var(--erro); border-radius:var(--raio-pequeno);
+    padding:.8rem 1rem; font-size:.85rem; font-weight:600; margin:0;
+  }
+  .faixa-erro[hidden]{ display:none; }
+  .faixa-aviso{
+    background:var(--gelo); color:var(--vanilla-escuro); border:1px solid var(--linha);
+    border-radius:var(--raio-pequeno); padding:.8rem 1rem; font-size:.85rem; font-weight:600; margin:0;
+  }
+  .faixa-aviso[hidden]{ display:none; }
+  .rodape-form{ display:flex; justify-content:flex-end; font-size:.82rem; margin-top:-.4rem; }
+  .rodape-form button{
+    background:none; color:var(--vanilla-escuro); padding:0; font-weight:600; text-decoration:underline;
+  }
+  .rodape-form button:hover{ background:none; color:var(--texto); }
+  .carregando-tela{
+    display:flex; align-items:center; justify-content:center; min-height:100vh; width:100%;
+    color:var(--texto-suave); font-size:.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="carregando-tela" id="tela-carregando">Verificando sessão...</div>
+
+<div class="cartao" id="cartao-login" hidden>
+  <p class="logo">Samara Dias</p>
+  <p class="subtitulo">Entrar no painel administrativo</p>
+
+  <form id="form-login" novalidate>
+    <p class="faixa-erro" id="mensagem-erro" role="alert" hidden></p>
+    <p class="faixa-aviso" id="mensagem-aviso" role="status" hidden></p>
+    <label for="campo-email">E-mail
+      <input id="campo-email" name="email" type="email" autocomplete="username" required>
+    </label>
+    <label for="campo-senha">Senha
+      <input id="campo-senha" name="senha" type="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" id="botao-entrar">Entrar</button>
+    <div class="rodape-form">
+      <button type="button" id="botao-esqueci">Esqueci minha senha</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/banco.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var telaCarregando = document.getElementById("tela-carregando");
+  var cartao = document.getElementById("cartao-login");
+  var form = document.getElementById("form-login");
+  var campoEmail = document.getElementById("campo-email");
+  var campoSenha = document.getElementById("campo-senha");
+  var botaoEntrar = document.getElementById("botao-entrar");
+  var botaoEsqueci = document.getElementById("botao-esqueci");
+  var mensagemErro = document.getElementById("mensagem-erro");
+  var mensagemAviso = document.getElementById("mensagem-aviso");
+
+  function mostrarErro(texto){
+    mensagemAviso.hidden = true;
+    mensagemErro.textContent = texto;
+    mensagemErro.hidden = false;
+  }
+  function mostrarAviso(texto){
+    mensagemErro.hidden = true;
+    mensagemAviso.textContent = texto;
+    mensagemAviso.hidden = false;
+  }
+  function esconderMensagens(){
+    mensagemErro.hidden = true;
+    mensagemAviso.hidden = true;
+  }
+
+  function mostrarFormulario(){
+    telaCarregando.hidden = true;
+    cartao.hidden = false;
+    campoEmail.focus();
+  }
+
+  async function conferirSessao(){
+    if(!window.supabaseCliente){
+      telaCarregando.textContent = "Não consegui conectar ao Supabase. Confira a conexão com a internet e recarregue a página.";
+      return;
+    }
+    try{
+      var resposta = await window.supabaseCliente.auth.getSession();
+      if(resposta.data && resposta.data.session){
+        window.location.href = "../admin/";
+        return;
+      }
+    }catch(erro){
+      console.error(erro);
+    }
+    mostrarFormulario();
+  }
+
+  form.addEventListener("submit", async function(evento){
+    evento.preventDefault();
+    esconderMensagens();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+
+    botaoEntrar.disabled = true;
+    botaoEntrar.textContent = "Entrando...";
+
+    try{
+      var resultado = await window.supabaseCliente.auth.signInWithPassword({
+        email: campoEmail.value.trim(),
+        password: campoSenha.value
+      });
+      if(resultado.error){
+        mostrarErro("E-mail ou senha incorretos.");
+        botaoEntrar.disabled = false;
+        botaoEntrar.textContent = "Entrar";
+        return;
+      }
+      window.location.href = "../admin/";
+    }catch(erro){
+      console.error(erro);
+      mostrarErro("Não consegui conectar agora. Tente de novo em instantes.");
+      botaoEntrar.disabled = false;
+      botaoEntrar.textContent = "Entrar";
+    }
+  });
+
+  botaoEsqueci.addEventListener("click", async function(){
+    esconderMensagens();
+    var email = campoEmail.value.trim();
+    if(!email){
+      mostrarErro("Digite seu e-mail no campo acima primeiro, depois clique em \"Esqueci minha senha\".");
+      campoEmail.focus();
+      return;
+    }
+    botaoEsqueci.disabled = true;
+    try{
+      var resultado = await window.supabaseCliente.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      if(resultado.error){
+        mostrarErro("Não consegui enviar o e-mail de recuperação agora. Tente de novo em instantes.");
+      }else{
+        mostrarAviso("Se esse e-mail tiver uma conta, enviamos um link de recuperação de senha para ele.");
+      }
+    }catch(erro){
+      console.error(erro);
+      mostrarErro("Não consegui enviar o e-mail de recuperação agora. Tente de novo em instantes.");
+    }
+    botaoEsqueci.disabled = false;
+  });
+
+  conferirSessao();
+})();
+</script>
+</body>
+</html>

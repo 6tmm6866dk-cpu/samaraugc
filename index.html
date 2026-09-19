@@ -352,8 +352,17 @@
     background:var(--gelo); border:1px solid var(--vanilla); color:var(--vanilla-escuro);
     border-radius:var(--raio-pequeno); padding:1rem; font-weight:700; margin:0;
   }
+  #form-erro{
+    background:#fbeae9; border:1px solid #e3a7a1; color:#b3261e;
+    border-radius:var(--raio-pequeno); padding:1rem; font-weight:700; margin:0;
+  }
   .contato-links{ display:grid; gap:1rem; align-content:start; }
   .contato-links .botao{ justify-content:center; }
+
+  .mensagem-vazia{
+    grid-column:1/-1; text-align:center; color:var(--texto-suave); font-size:.9rem;
+    background:var(--gelo); border:1px dashed var(--linha); border-radius:var(--raio-pequeno); padding:1.6rem;
+  }
 
   @media (max-width:860px){ .contato-grade{ grid-template-columns:1fr; } }
 
@@ -507,6 +516,7 @@
           <textarea id="campo-mensagem" name="mensagem" rows="5" required></textarea>
         </label>
         <button type="submit" class="botao botao-primario">Enviar mensagem</button>
+        <p id="form-erro" role="alert" hidden>Não consegui enviar sua mensagem agora. Tente de novo em instantes.</p>
         <p id="form-confirmacao" role="status" aria-live="polite" hidden>Mensagem enviada! Em breve eu te respondo. Obrigada pelo contato.</p>
       </form>
       <div class="contato-links reveal">
@@ -549,6 +559,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/banco.js"></script>
 <script>
 (function(){
   "use strict";
@@ -556,56 +568,16 @@
   /* =========================================================
      DADOS: edite os arrays abaixo para atualizar o portfólio
      sem precisar mexer no HTML.
+     Os vídeos (destaques e trabalhos por nicho) não ficam mais
+     aqui: eles vêm do banco de dados (tabela "videos"), editados
+     pelo painel administrativo em /admin.
      ========================================================= */
 
   // Marcas atendidas (faixa que fecha a capa)
   var MARCAS = ["Marca 01","Marca 02","Marca 03","Marca 04","Marca 05","Marca 06","Marca 07","Marca 08","Marca 09","Marca 10","Marca 11","Marca 12"];
 
-  // Conteúdos de destaque (3 vídeos em evidência)
-  var DESTAQUES = [
-    {
-      // TROQUE AQUI: link do vídeo (Reels, TikTok, Youtube Shorts etc.)
-      linkVideo: "#",
-      // TROQUE AQUI: descrição da imagem de capa vertical 9:16 (troque o placeholder por uma imagem real no HTML gerado)
-      capaDescricao: "capa vertical do vídeo de rotina de skincare, formato 9:16",
-      numero: "+000K",
-      rotulo: "views no reels, edite este número",
-      titulo: "Rotina de skincare em 3 passos",
-      contexto: "Vídeo vertical mostrando o passo a passo do produto em uso real, gravado em cenário de banheiro."
-    },
-    {
-      linkVideo: "#",
-      capaDescricao: "capa vertical do vídeo de unboxing de moda, formato 9:16",
-      numero: "+000K",
-      rotulo: "views no reels, edite este número",
-      titulo: "Unboxing de uma nova coleção",
-      contexto: "Reação genuína ao abrir a caixa, com prova de roupa e comentários espontâneos sobre o caimento."
-    },
-    {
-      linkVideo: "#",
-      capaDescricao: "capa vertical do vídeo de receita rápida, formato 9:16",
-      numero: "+000K",
-      rotulo: "views no reels, edite este número",
-      titulo: "Receita rápida com o produto",
-      contexto: "Vídeo dinâmico de cozinha mostrando o produto sendo usado do início ao fim do preparo."
-    }
-  ];
-
   // Nichos atendidos (usados nos filtros da galeria de trabalhos)
   var NICHOS = ["todos","beleza","skincare","moda","comida","casa e decoração","fitness","maternidade","viagem","tech"];
-
-  // Trabalhos por nicho (galeria com filtro)
-  var TRABALHOS = [
-    { nicho:"beleza", titulo:"Vídeo UGC de maquiagem do dia a dia", marca:"Marca 01", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"skincare", titulo:"Rotina noturna com sérum e hidratante", marca:"Marca 02", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"moda", titulo:"Look completo com peças da nova coleção", marca:"Marca 03", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"comida", titulo:"Receita prática usando o produto", marca:"Marca 04", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"casa e decoração", titulo:"Tour rápido mostrando o item na decoração", marca:"Marca 05", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"fitness", titulo:"Treino em casa usando o produto", marca:"Marca 06", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"maternidade", titulo:"Rotina com o bebê usando o produto", marca:"Marca 07", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"viagem", titulo:"Malinha de viagem com os itens essenciais", marca:"Marca 08", formato:"foto do trabalho, formato 4:5" },
-    { nicho:"tech", titulo:"Unboxing e primeiras impressões do gadget", marca:"Marca 09", formato:"foto do trabalho, formato 4:5" }
-  ];
 
   // Serviços oferecidos
   var SERVICOS = [
@@ -666,19 +638,24 @@
     }).join("");
   }
 
-  function renderDestaques(){
+  function renderDestaques(destaques){
     var alvo = document.getElementById("destaques-grade");
-    alvo.innerHTML = DESTAQUES.map(function(d){
-      return '<a class="destaque-card reveal" href="'+d.linkVideo+'" target="_blank" rel="noopener" aria-label="Assistir ao vídeo: '+d.titulo+'">' +
+    if(!destaques || destaques.length === 0){
+      alvo.innerHTML = '<p class="mensagem-vazia">Seus vídeos de destaque vão aparecer aqui assim que você marcar um vídeo com um número (como visualizações) no painel administrativo.</p>';
+      return;
+    }
+    alvo.innerHTML = destaques.map(function(d){
+      var contexto = d.marca ? ("Vídeo gravado para "+d.marca+".") : "";
+      return '<a class="destaque-card reveal" href="'+(d.link||"#")+'" target="_blank" rel="noopener" aria-label="Assistir ao vídeo: '+d.titulo+'">' +
         '<figure class="destaque-capa placeholder-bloco">' +
           placeholderBloco("Capa vertical 9:16 do vídeo "+d.titulo+". Troque por uma imagem real de capa.") +
           '<span class="botao-play" aria-hidden="true">&#9654;</span>' +
-          '<figcaption>'+d.capaDescricao+'</figcaption>' +
+          '<figcaption>'+(d.formato || (d.nicho+", formato vertical 9:16"))+'</figcaption>' +
         '</figure>' +
         '<div class="destaque-corpo">' +
-          '<p class="destaque-numero">'+d.numero+' <span class="destaque-rotulo">'+d.rotulo+'</span></p>' +
+          '<p class="destaque-numero">'+d.destaque+' <span class="destaque-rotulo">no nicho de '+d.nicho+'</span></p>' +
           '<h3>'+d.titulo+'</h3>' +
-          '<p class="destaque-contexto">'+d.contexto+'</p>' +
+          '<p class="destaque-contexto">'+contexto+'</p>' +
         '</div>' +
       '</a>';
     }).join("");
@@ -700,20 +677,24 @@
     });
   }
 
-  function renderTrabalhos(){
+  function renderTrabalhos(trabalhos){
     var alvo = document.getElementById("trabalhos-grade");
-    alvo.innerHTML = TRABALHOS.map(function(t){
+    if(!trabalhos || trabalhos.length === 0){
+      alvo.innerHTML = '<p class="mensagem-vazia">Seus vídeos vão aparecer aqui assim que forem cadastrados no painel administrativo.</p>';
+      return;
+    }
+    alvo.innerHTML = trabalhos.map(function(t){
       return '<article class="trabalho-card reveal" data-nicho="'+t.nicho+'">' +
         '<figure class="trabalho-capa placeholder-bloco">' +
-          placeholderBloco("Foto do trabalho para "+t.marca+", nicho de "+t.nicho+". Troque por uma imagem real.") +
+          placeholderBloco("Foto do trabalho para "+(t.marca||"a marca")+", nicho de "+t.nicho+". Troque por uma imagem real.") +
           '<span class="selo-novo">novo</span>' +
-          '<figcaption>'+t.formato+'</figcaption>' +
+          '<figcaption>'+(t.formato||"")+'</figcaption>' +
         '</figure>' +
         '<div class="trabalho-corpo">' +
           '<div class="estrelas" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
           '<span class="sr-only">Avaliação 5 de 5 estrelas</span>' +
           '<h3>'+t.titulo+'</h3>' +
-          '<p class="trabalho-marca">'+t.marca+'</p>' +
+          '<p class="trabalho-marca">'+(t.marca||"")+'</p>' +
           '<div class="trabalho-rodape">' +
             '<span class="etiqueta-consulta">sob consulta</span>' +
             '<a href="#contato" class="botao botao-primario botao-mini">Contratar &rarr;</a>' +
@@ -727,6 +708,50 @@
     document.querySelectorAll(".trabalho-card").forEach(function(card){
       var mostra = nicho === "todos" || card.getAttribute("data-nicho") === nicho;
       card.classList.toggle("escondido", !mostra);
+    });
+  }
+
+  /* =========================================================
+     VÍDEOS (vêm do banco de dados, tabela "videos")
+     ========================================================= */
+  async function carregarVideos(){
+    if(!window.supabaseCliente){
+      renderDestaques([]);
+      renderTrabalhos([]);
+      return;
+    }
+    try{
+      var resposta = await window.supabaseCliente
+        .from("videos")
+        .select("*")
+        .eq("visivel", true)
+        .order("ordem", { ascending: true });
+      if(resposta.error) throw resposta.error;
+      var videos = resposta.data || [];
+      var destaques = videos.filter(function(v){ return v.destaque && String(v.destaque).trim() !== ""; }).slice(0,3);
+      renderDestaques(destaques);
+      renderTrabalhos(videos);
+    }catch(erro){
+      console.error("Não consegui carregar os vídeos do banco de dados.", erro);
+      renderDestaques([]);
+      renderTrabalhos([]);
+    }
+  }
+
+  /* =========================================================
+     REGISTRO DE VISITA (tabela "visitas")
+     ========================================================= */
+  function registrarVisita(){
+    if(!window.supabaseCliente) return;
+    var origem = "direto";
+    if(document.referrer){
+      try{ origem = new URL(document.referrer).hostname || "direto"; }catch(erroUrl){ origem = "direto"; }
+    }
+    window.supabaseCliente.from("visitas").insert({
+      pagina: window.location.pathname,
+      origem: origem
+    }).then(function(resposta){
+      if(resposta.error) console.error("Não consegui registrar a visita.", resposta.error);
     });
   }
 
@@ -864,15 +889,44 @@
   function iniciarFormularioContato(){
     var form = document.getElementById("form-contato");
     var confirmacao = document.getElementById("form-confirmacao");
-    form.addEventListener("submit", function(evento){
+    var erro = document.getElementById("form-erro");
+    var botaoEnviar = form.querySelector("button[type=submit]");
+
+    form.addEventListener("submit", async function(evento){
       evento.preventDefault();
       if(!form.checkValidity()){ form.reportValidity(); return; }
-      Array.prototype.forEach.call(form.elements, function(campo){
-        if(campo.tagName === "INPUT" || campo.tagName === "TEXTAREA"){ campo.hidden = true; }
-      });
-      form.querySelectorAll("label").forEach(function(l){ l.hidden = true; });
-      form.querySelector("button[type=submit]").hidden = true;
-      confirmacao.hidden = false;
+      erro.hidden = true;
+
+      if(!window.supabaseCliente){
+        erro.hidden = false;
+        return;
+      }
+
+      botaoEnviar.disabled = true;
+      var textoOriginalBotao = botaoEnviar.textContent;
+      botaoEnviar.textContent = "Enviando...";
+
+      try{
+        var resposta = await window.supabaseCliente.from("marcas").insert({
+          nome: document.getElementById("campo-nome").value.trim(),
+          email: document.getElementById("campo-email").value.trim(),
+          obs: document.getElementById("campo-mensagem").value.trim(),
+          situacao: "Lead"
+        });
+        if(resposta.error) throw resposta.error;
+
+        Array.prototype.forEach.call(form.elements, function(campo){
+          if(campo.tagName === "INPUT" || campo.tagName === "TEXTAREA"){ campo.hidden = true; }
+        });
+        form.querySelectorAll("label").forEach(function(l){ l.hidden = true; });
+        botaoEnviar.hidden = true;
+        confirmacao.hidden = false;
+      }catch(erroEnvio){
+        console.error("Não consegui gravar o contato.", erroEnvio);
+        erro.hidden = false;
+        botaoEnviar.disabled = false;
+        botaoEnviar.textContent = textoOriginalBotao;
+      }
     });
   }
 
@@ -925,24 +979,28 @@
   /* =========================================================
      INICIALIZAÇÃO
      ========================================================= */
-  document.addEventListener("DOMContentLoaded", function(){
+  document.addEventListener("DOMContentLoaded", async function(){
     var reduzido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     renderMarcas();
     renderHeroNumeros();
-    renderDestaques();
     renderFiltros();
-    renderTrabalhos();
     renderServicos();
     renderMetricas();
     renderResultados();
     renderDepoimentos();
+
+    // Espera os vídeos chegarem do banco antes de ligar a animação de
+    // entrada, senão os cards de vídeo (que chegam depois) ficariam
+    // invisíveis por não terem sido vistos pelo observador de rolagem.
+    await carregarVideos();
 
     iniciarMenu();
     iniciarRevelacao(reduzido);
     iniciarContadores(reduzido);
     iniciarFormularioContato();
     iniciarModal();
+    registrarVisita();
 
     document.getElementById("ano").textContent = new Date().getFullYear();
   });
