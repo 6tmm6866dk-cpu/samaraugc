@@ -635,6 +635,7 @@
       var passaSituacao = estado.marcas.situacao === "todas" || m.situacao === estado.marcas.situacao;
       var passaBusca = !termo ||
         (m.nome || "").toLowerCase().indexOf(termo) !== -1 ||
+        (m.nicho || "").toLowerCase().indexOf(termo) !== -1 ||
         (m.instagram || "").toLowerCase().indexOf(termo) !== -1 ||
         (m.email || "").toLowerCase().indexOf(termo) !== -1;
       return passaSituacao && passaBusca;
@@ -652,8 +653,8 @@
     var wrap = el("div", { class: "tabela-scroll" });
     var tabela = el("table");
     tabela.appendChild(el("thead", {}, [el("tr", {}, [
-      el("th", { texto: "Marca" }), el("th", { texto: "Instagram" }), el("th", { texto: "E-mail" }),
-      el("th", { texto: "Telefone" }), el("th", { texto: "Situação" }), el("th", { texto: "Último contato" }), el("th", { texto: "" })
+      el("th", { texto: "Marca" }), el("th", { texto: "Nicho" }), el("th", { texto: "Instagram" }), el("th", { texto: "E-mail" }),
+      el("th", { texto: "Telefone" }), el("th", { texto: "Situação" }), el("th", { texto: "Observações" }), el("th", { texto: "Último contato" }), el("th", { texto: "" })
     ])]));
     var corpo = el("tbody");
     filtradas.forEach(function (m) {
@@ -663,6 +664,7 @@
         abrirFormularioMarca(m);
       });
       tr.appendChild(el("td", { texto: m.nome || "" }));
+      tr.appendChild(el("td", { texto: m.nicho || "" }));
 
       var tdInsta = el("td");
       if (m.instagram) {
@@ -683,6 +685,7 @@
       tr.appendChild(tdTel);
 
       tr.appendChild(el("td", {}, [el("span", { class: "pilula " + (CORES_SITUACAO[m.situacao] || "pilula-neutra"), texto: m.situacao || "" })]));
+      tr.appendChild(el("td", { texto: m.obs || "", style: "max-width:16rem;white-space:normal;" }));
       tr.appendChild(el("td", { texto: formatarDataBR(m.ultimo_contato) }));
 
       var tdApagar = el("td");
@@ -701,6 +704,7 @@
   function abrirFormularioMarca(marca) {
     var ehEdicao = !!marca;
     var nome = campoTexto({ id: "m-nome", rotulo: "Nome da marca", valor: marca ? marca.nome : "", obrigatorio: true });
+    var nicho = campoTexto({ id: "m-nicho", rotulo: "Nicho", valor: marca ? marca.nicho : "" });
     var instagram = campoTexto({ id: "m-instagram", rotulo: "Instagram", valor: marca ? marca.instagram : "" });
     var email = campoTexto({ id: "m-email", rotulo: "E-mail", tipo: "email", valor: marca ? marca.email : "" });
     var telefone = campoTexto({ id: "m-telefone", rotulo: "Telefone (com DDD)", valor: marca ? marca.telefone : "" });
@@ -711,7 +715,7 @@
     var ultimoContato = campoTexto({ id: "m-ultimo-contato", rotulo: "Último contato", tipo: "date", valor: marca && marca.ultimo_contato ? String(marca.ultimo_contato).slice(0, 10) : "" });
     var obs = campoTextarea({ id: "m-obs", rotulo: "Observações", valor: marca ? marca.obs : "" });
 
-    var form = el("form", {}, [nome.wrap, instagram.wrap, email.wrap, telefone.wrap, situacao.wrap, ultimoContato.wrap, obs.wrap]);
+    var form = el("form", {}, [nome.wrap, nicho.wrap, instagram.wrap, email.wrap, telefone.wrap, situacao.wrap, ultimoContato.wrap, obs.wrap]);
     var faixaErro = avisoSecao(""); faixaErro.hidden = true;
     form.appendChild(faixaErro);
     form.appendChild(el("button", { type: "submit", class: "botao botao-primario", texto: ehEdicao ? "Salvar alterações" : "Adicionar marca" }));
@@ -720,7 +724,7 @@
       evento.preventDefault();
       if (!form.checkValidity()) { form.reportValidity(); return; }
       var registro = {
-        nome: nome.input.value.trim(), instagram: instagram.input.value.trim(), email: email.input.value.trim(),
+        nome: nome.input.value.trim(), nicho: nicho.input.value.trim(), instagram: instagram.input.value.trim(), email: email.input.value.trim(),
         telefone: telefone.input.value.trim(), situacao: situacao.input.value,
         ultimo_contato: ultimoContato.input.value || null, obs: obs.input.value.trim()
       };
@@ -745,9 +749,9 @@
   }
 
   function baixarMarcasCSV() {
-    var linhas = [["Nome", "Instagram", "E-mail", "Telefone", "Situação", "Observações", "Último contato"]];
+    var linhas = [["Nome", "Nicho", "Instagram", "E-mail", "Telefone", "Situação", "Observações", "Último contato"]];
     cacheMarcas.forEach(function (m) {
-      linhas.push([m.nome, m.instagram, m.email, m.telefone, m.situacao, m.obs, formatarDataBR(m.ultimo_contato)]);
+      linhas.push([m.nome, m.nicho, m.instagram, m.email, m.telefone, m.situacao, m.obs, formatarDataBR(m.ultimo_contato)]);
     });
     var csv = "﻿" + paraCSV(linhas);
     baixarArquivo("marcas.csv", csv, "text/csv;charset=utf-8;");
@@ -758,6 +762,7 @@
      ========================================================= */
   var CAMPOS_MARCAS_IMPORT = [
     { chave: "nome", rotulo: "Nome da marca", obrigatorio: true },
+    { chave: "nicho", rotulo: "Nicho" },
     { chave: "instagram", rotulo: "Instagram" },
     { chave: "email", rotulo: "E-mail" },
     { chave: "telefone", rotulo: "Telefone" },
@@ -768,6 +773,7 @@
 
   var SINONIMOS_COLUNAS_MARCAS = {
     nome: ["nome", "marca", "empresa", "nomedamarca", "nomeempresa", "cliente", "company", "brand", "razaosocial"],
+    nicho: ["nicho", "categoria", "segmento", "area", "ramo", "tiponegocio", "setor"],
     instagram: ["instagram", "insta", "ig", "perfil", "arroba", "usuario"],
     email: ["email", "emails", "mail", "ecom"],
     telefone: ["telefone", "whatsapp", "celular", "fone", "phone", "contato", "numero", "tel", "whats"],
@@ -953,6 +959,7 @@
         if (!nome) { puladas++; return; }
         registros.push({
           nome: nome,
+          nicho: mapeamentoFinal.nicho !== -1 ? (linha[mapeamentoFinal.nicho] || "").trim() : "",
           instagram: mapeamentoFinal.instagram !== -1 ? (linha[mapeamentoFinal.instagram] || "").trim() : "",
           email: mapeamentoFinal.email !== -1 ? (linha[mapeamentoFinal.email] || "").trim() : "",
           telefone: mapeamentoFinal.telefone !== -1 ? (linha[mapeamentoFinal.telefone] || "").trim() : "",

@@ -73,6 +73,7 @@ drop table if exists public.marcas cascade;
 create table public.marcas (
   id uuid primary key default gen_random_uuid(),
   nome text not null,
+  nicho text,
   instagram text,
   email text,
   telefone text,
@@ -82,8 +83,8 @@ create table public.marcas (
   criado_em timestamptz not null default now()
 );
 
-insert into public.marcas (nome, instagram, email, telefone, situacao, obs, ultimo_contato)
-values ('[Exemplo] Marca Modelo', '@marcamodelo', 'contato@marcamodelo.com', '', 'Lead', 'Linha de exemplo, pode apagar.', current_date);
+insert into public.marcas (nome, nicho, instagram, email, telefone, situacao, obs, ultimo_contato)
+values ('[Exemplo] Marca Modelo', 'beleza', '@marcamodelo', 'contato@marcamodelo.com', '', 'Lead', 'Linha de exemplo, pode apagar.', current_date);
 
 
 -- =============================================================
