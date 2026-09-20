@@ -1330,6 +1330,7 @@
     function marcaExemplo() { return "Loja Exemplo"; }
 
     function atualizarPrevia() {
+      if (!refPrevia.assunto || !refPrevia.iframe) return;
       var assuntoExemplo = substituirVariaveisLocais(estado.prospeccao.assunto || "(sem assunto)", nomeExemplo(), marcaExemplo());
       var htmlExemplo = substituirVariaveisLocais(htmlEfetivoProspeccao(), nomeExemplo(), marcaExemplo());
       refPrevia.assunto.textContent = assuntoExemplo;
@@ -1341,7 +1342,7 @@
       var texto = d.lista.length + (d.lista.length === 1 ? " marca vai receber" : " marcas vão receber");
       if (d.foraDoEmail > 0) texto += ", " + d.foraDoEmail + " ficaram de fora por não ter e-mail";
       if (d.jaEnviados > 0) texto += ", " + d.jaEnviados + " puladas por já terem recebido este assunto";
-      refPrevia.contagem.textContent = texto;
+      if (refPrevia.contagem) refPrevia.contagem.textContent = texto;
       return d;
     }
 
