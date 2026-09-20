@@ -80,11 +80,12 @@ create table public.marcas (
   situacao text not null default 'Lead' check (situacao in ('Lead', 'Conversando', 'Cliente', 'Parada')),
   obs text,
   ultimo_contato date,
+  favorita boolean not null default false,
   criado_em timestamptz not null default now()
 );
 
-insert into public.marcas (nome, nicho, instagram, email, telefone, situacao, obs, ultimo_contato)
-values ('[Exemplo] Marca Modelo', 'beleza', '@marcamodelo', 'contato@marcamodelo.com', '', 'Lead', 'Linha de exemplo, pode apagar.', current_date);
+insert into public.marcas (nome, nicho, instagram, email, telefone, situacao, obs, ultimo_contato, favorita)
+values ('[Exemplo] Marca Modelo', 'beleza', '@marcamodelo', 'contato@marcamodelo.com', '', 'Lead', 'Linha de exemplo, pode apagar.', current_date, false);
 
 
 -- =============================================================

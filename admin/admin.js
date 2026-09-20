@@ -640,6 +640,7 @@
         (m.email || "").toLowerCase().indexOf(termo) !== -1;
       return passaSituacao && passaBusca;
     });
+    filtradas.sort(function (a, b) { return (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0); });
 
     if (cacheMarcas.length === 0) {
       cartao.appendChild(estadoVazio("Você ainda não tem nenhuma marca cadastrada. Elas também chegam aqui sozinhas quando alguém preenche o formulário do seu portfólio."));
@@ -653,16 +654,31 @@
     var wrap = el("div", { class: "tabela-scroll" });
     var tabela = el("table");
     tabela.appendChild(el("thead", {}, [el("tr", {}, [
-      el("th", { texto: "Marca" }), el("th", { texto: "Nicho" }), el("th", { texto: "Instagram" }), el("th", { texto: "E-mail" }),
+      el("th", { texto: "" }), el("th", { texto: "Marca" }), el("th", { texto: "Nicho" }), el("th", { texto: "Instagram" }), el("th", { texto: "E-mail" }),
       el("th", { texto: "Telefone" }), el("th", { texto: "Situação" }), el("th", { texto: "Observações" }), el("th", { texto: "Último contato" }), el("th", { texto: "" })
     ])]));
     var corpo = el("tbody");
     filtradas.forEach(function (m) {
       var tr = el("tr", { class: "linha-clicavel" });
+      if (m.favorita) tr.style.borderLeft = "3px solid var(--amarelo)";
       tr.addEventListener("click", function (evento) {
-        if (evento.target.closest("a")) return;
+        if (evento.target.closest("a") || evento.target.closest("button")) return;
         abrirFormularioMarca(m);
       });
+
+      var tdEstrela = el("td");
+      var botaoEstrela = el("button", { type: "button", class: "botao-icone", html: m.favorita ? ICONES.estrelaCheia : ICONES.estrela, "aria-label": m.favorita ? "Tirar dos favoritos" : "Marcar como favorita", style: m.favorita ? "color:var(--amarelo-texto);" : "" });
+      botaoEstrela.addEventListener("click", async function (evento) {
+        evento.stopPropagation();
+        try {
+          var resp = await sb.from("marcas").update({ favorita: !m.favorita }).eq("id", m.id);
+          if (resp.error) throw resp.error;
+          renderizarAba("marcas");
+        } catch (erro) { alert("Não consegui favoritar agora. Tente de novo."); console.error(erro); }
+      });
+      tdEstrela.appendChild(botaoEstrela);
+      tr.appendChild(tdEstrela);
+
       tr.appendChild(el("td", { texto: m.nome || "" }));
       tr.appendChild(el("td", { texto: m.nicho || "" }));
 
