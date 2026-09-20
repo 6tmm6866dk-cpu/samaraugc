@@ -25,6 +25,7 @@
     alca: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>',
     busca: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
     baixar: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M5 21h14"/></svg>',
+    subir: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><polyline points="7 14 12 9 17 14"/><path d="M5 21h14"/></svg>',
     mais: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
     estrela: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.6 17 14.6 18.2 21.5 12 18.1 5.8 21.5 7 14.6 2 9.6 8.9 8.6 12 2"/></svg>',
     estrelaCheia: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12 2 15.1 8.6 22 9.6 17 14.6 18.2 21.5 12 18.1 5.8 21.5 7 14.6 2 9.6 8.9 8.6 12 2"/></svg>',
@@ -613,6 +614,10 @@
     botaoBaixar.addEventListener("click", baixarMarcasCSV);
     barra.appendChild(botaoBaixar);
 
+    var botaoImportar = el("button", { type: "button", class: "botao", html: ICONES.subir + "Importar planilha" });
+    botaoImportar.addEventListener("click", abrirImportarMarcas);
+    barra.appendChild(botaoImportar);
+
     container.appendChild(barra);
 
     var cartao = el("div", { class: "cartao", id: "cartao-tabela-marcas" });
@@ -746,6 +751,243 @@
     });
     var csv = "﻿" + paraCSV(linhas);
     baixarArquivo("marcas.csv", csv, "text/csv;charset=utf-8;");
+  }
+
+  /* =========================================================
+     IMPORTAR PLANILHA DE MARCAS (CSV)
+     ========================================================= */
+  var CAMPOS_MARCAS_IMPORT = [
+    { chave: "nome", rotulo: "Nome da marca", obrigatorio: true },
+    { chave: "instagram", rotulo: "Instagram" },
+    { chave: "email", rotulo: "E-mail" },
+    { chave: "telefone", rotulo: "Telefone" },
+    { chave: "situacao", rotulo: "Situação" },
+    { chave: "obs", rotulo: "Observações" },
+    { chave: "ultimo_contato", rotulo: "Último contato" }
+  ];
+
+  var SINONIMOS_COLUNAS_MARCAS = {
+    nome: ["nome", "marca", "empresa", "nomedamarca", "nomeempresa", "cliente", "company", "brand", "razaosocial"],
+    instagram: ["instagram", "insta", "ig", "perfil", "arroba", "usuario"],
+    email: ["email", "emails", "mail", "ecom"],
+    telefone: ["telefone", "whatsapp", "celular", "fone", "phone", "contato", "numero", "tel", "whats"],
+    situacao: ["situacao", "status", "etapa", "funil", "estagio"],
+    obs: ["obs", "observacoes", "observacao", "notas", "nota", "comentario", "comentarios", "anotacoes", "detalhes"],
+    ultimo_contato: ["ultimocontato", "data", "datacontato", "lastcontact", "ultimafala", "dataultimocontato", "contatoem"]
+  };
+
+  function normalizarTexto(texto) {
+    return (texto || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+  }
+
+  function detectarDelimitadorCSV(texto) {
+    var primeiraLinha = texto.split(/\r\n|\n/, 1)[0] || "";
+    var virgulas = (primeiraLinha.match(/,/g) || []).length;
+    var pontoVirgulas = (primeiraLinha.match(/;/g) || []).length;
+    return pontoVirgulas > virgulas ? ";" : ",";
+  }
+
+  function analisarCSV(texto) {
+    texto = texto.replace(/^﻿/, "");
+    var delimitador = detectarDelimitadorCSV(texto);
+    var linhas = [];
+    var linhaAtual = [];
+    var campoAtual = "";
+    var dentroDeAspas = false;
+    var i = 0;
+    while (i < texto.length) {
+      var c = texto[i];
+      if (dentroDeAspas) {
+        if (c === '"') {
+          if (texto[i + 1] === '"') { campoAtual += '"'; i += 2; continue; }
+          dentroDeAspas = false; i++; continue;
+        }
+        campoAtual += c; i++; continue;
+      }
+      if (c === '"') { dentroDeAspas = true; i++; continue; }
+      if (c === delimitador) { linhaAtual.push(campoAtual); campoAtual = ""; i++; continue; }
+      if (c === '\r') { i++; continue; }
+      if (c === '\n') {
+        linhaAtual.push(campoAtual); campoAtual = "";
+        linhas.push(linhaAtual); linhaAtual = [];
+        i++; continue;
+      }
+      campoAtual += c; i++;
+    }
+    linhaAtual.push(campoAtual);
+    if (linhaAtual.length > 1 || linhaAtual[0] !== "") linhas.push(linhaAtual);
+    linhas = linhas.filter(function (l) { return l.some(function (v) { return v.trim() !== ""; }); });
+    if (linhas.length === 0) return { cabecalhos: [], linhas: [] };
+    var cabecalhos = linhas[0].map(function (h) { return h.trim(); });
+    return { cabecalhos: cabecalhos, linhas: linhas.slice(1) };
+  }
+
+  function detectarMapeamentoColunas(cabecalhos) {
+    var normalizados = cabecalhos.map(normalizarTexto);
+    var mapeamento = {};
+    Object.keys(SINONIMOS_COLUNAS_MARCAS).forEach(function (campo) {
+      var indice = -1;
+      SINONIMOS_COLUNAS_MARCAS[campo].some(function (sinonimo) {
+        var pos = normalizados.indexOf(sinonimo);
+        if (pos !== -1) { indice = pos; return true; }
+        return false;
+      });
+      mapeamento[campo] = indice;
+    });
+    return mapeamento;
+  }
+
+  function normalizarSituacaoImportada(texto) {
+    var t = normalizarTexto(texto);
+    if (t === "lead") return "Lead";
+    if (t === "conversando" || t === "negociando" || t === "emconversa") return "Conversando";
+    if (t === "cliente" || t === "ativo" || t === "fechado" || t === "fechada") return "Cliente";
+    if (t === "parada" || t === "perdida" || t === "perdido" || t === "inativo" || t === "frio") return "Parada";
+    return "Lead";
+  }
+
+  function parseDataPlanilha(texto) {
+    if (!texto) return null;
+    texto = texto.trim();
+    var m = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) return m[1] + "-" + doisDigitos(Number(m[2])) + "-" + doisDigitos(Number(m[3]));
+    m = texto.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return m[3] + "-" + doisDigitos(Number(m[2])) + "-" + doisDigitos(Number(m[1]));
+    m = texto.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/);
+    if (m) return "20" + m[3] + "-" + doisDigitos(Number(m[2])) + "-" + doisDigitos(Number(m[1]));
+    return null;
+  }
+
+  function abrirImportarMarcas() {
+    var corpo = el("div");
+    corpo.appendChild(el("p", { style: "font-size:.82rem;color:var(--texto-suave);margin-bottom:1rem;", texto: "Escolha o arquivo CSV da sua planilha de leads. Se ela estiver em Excel ou Google Sheets, abra e exporte (ou baixe) como CSV antes de escolher aqui. Nada é importado ainda nesta etapa, na próxima tela você confere tudo antes." }));
+    var inputArquivo = el("input", { type: "file", accept: ".csv,text/csv" });
+    corpo.appendChild(inputArquivo);
+    var areaErro = el("div");
+    corpo.appendChild(areaErro);
+
+    inputArquivo.addEventListener("change", function () {
+      areaErro.innerHTML = "";
+      var arquivo = inputArquivo.files[0];
+      if (!arquivo) return;
+      var leitor = new FileReader();
+      leitor.onload = function () {
+        var resultado = analisarCSV(String(leitor.result));
+        if (resultado.cabecalhos.length === 0 || resultado.linhas.length === 0) {
+          areaErro.appendChild(avisoSecao("Não consegui ler nenhuma linha nesse arquivo. Confira se ele é mesmo um CSV (com cabeçalho na primeira linha)."));
+          return;
+        }
+        abrirMapeamentoImportacaoMarcas(resultado);
+      };
+      leitor.onerror = function () {
+        areaErro.appendChild(avisoSecao("Não consegui abrir esse arquivo. Tente exportar a planilha de novo em CSV."));
+      };
+      leitor.readAsText(arquivo, "UTF-8");
+    });
+
+    abrirModal(corpo, "Importar planilha de marcas");
+  }
+
+  function abrirMapeamentoImportacaoMarcas(resultado) {
+    var cabecalhos = resultado.cabecalhos;
+    var linhas = resultado.linhas;
+    var mapeamentoDetectado = detectarMapeamentoColunas(cabecalhos);
+
+    var corpo = el("div");
+    corpo.appendChild(el("p", { style: "font-size:.85rem;margin-bottom:1rem;", texto: linhas.length + " linhas encontradas na planilha. Confira se cada campo abaixo bateu com a coluna certa. Se não bateu, escolha a coluna certa na lista." }));
+
+    var selects = {};
+    CAMPOS_MARCAS_IMPORT.forEach(function (campo) {
+      var select = el("select", {});
+      select.appendChild(el("option", { value: "-1", texto: "Nenhuma coluna" }));
+      cabecalhos.forEach(function (h, indice) {
+        var opt = el("option", { value: String(indice), texto: h || ("Coluna " + (indice + 1)) });
+        if (mapeamentoDetectado[campo.chave] === indice) opt.selected = true;
+        select.appendChild(opt);
+      });
+      selects[campo.chave] = select;
+      corpo.appendChild(el("div", { class: "campo" }, [
+        el("label", { texto: campo.rotulo + (campo.obrigatorio ? " (obrigatório)" : "") }),
+        select
+      ]));
+    });
+
+    corpo.appendChild(el("p", { style: "font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--texto-suave);margin:1rem 0 .4rem;", texto: "Prévia das 3 primeiras linhas da planilha" }));
+    var wrapPreview = el("div", { class: "tabela-scroll" });
+    var tabelaPreview = el("table");
+    tabelaPreview.appendChild(el("thead", {}, [el("tr", {}, cabecalhos.map(function (h) { return el("th", { texto: h }); }))]));
+    var corpoPreview = el("tbody");
+    linhas.slice(0, 3).forEach(function (linha) {
+      corpoPreview.appendChild(el("tr", {}, cabecalhos.map(function (h, indice) { return el("td", { texto: linha[indice] || "" }); })));
+    });
+    tabelaPreview.appendChild(corpoPreview);
+    wrapPreview.appendChild(tabelaPreview);
+    corpo.appendChild(wrapPreview);
+
+    var faixaResultado = avisoSecao("");
+    faixaResultado.hidden = true;
+    faixaResultado.style.marginTop = "1rem";
+    corpo.appendChild(faixaResultado);
+
+    var botaoImportar = el("button", { type: "button", class: "botao botao-primario", texto: "Importar " + linhas.length + " marcas", style: "margin-top:1rem;" });
+    botaoImportar.addEventListener("click", async function () {
+      var indiceNome = Number(selects.nome.value);
+      if (indiceNome === -1) {
+        faixaResultado.style.background = "";
+        faixaResultado.style.color = "";
+        faixaResultado.textContent = "Escolha qual coluna tem o nome da marca antes de importar.";
+        faixaResultado.hidden = false;
+        return;
+      }
+
+      botaoImportar.disabled = true;
+      botaoImportar.textContent = "Importando...";
+
+      var mapeamentoFinal = {};
+      CAMPOS_MARCAS_IMPORT.forEach(function (campo) { mapeamentoFinal[campo.chave] = Number(selects[campo.chave].value); });
+
+      var registros = [];
+      var puladas = 0;
+      linhas.forEach(function (linha) {
+        var nome = mapeamentoFinal.nome !== -1 ? (linha[mapeamentoFinal.nome] || "").trim() : "";
+        if (!nome) { puladas++; return; }
+        registros.push({
+          nome: nome,
+          instagram: mapeamentoFinal.instagram !== -1 ? (linha[mapeamentoFinal.instagram] || "").trim() : "",
+          email: mapeamentoFinal.email !== -1 ? (linha[mapeamentoFinal.email] || "").trim() : "",
+          telefone: mapeamentoFinal.telefone !== -1 ? (linha[mapeamentoFinal.telefone] || "").trim() : "",
+          situacao: normalizarSituacaoImportada(mapeamentoFinal.situacao !== -1 ? linha[mapeamentoFinal.situacao] : ""),
+          obs: mapeamentoFinal.obs !== -1 ? (linha[mapeamentoFinal.obs] || "").trim() : "",
+          ultimo_contato: mapeamentoFinal.ultimo_contato !== -1 ? parseDataPlanilha(linha[mapeamentoFinal.ultimo_contato]) : null
+        });
+      });
+
+      try {
+        var tamanhoLote = 200;
+        for (var i = 0; i < registros.length; i += tamanhoLote) {
+          var lote = registros.slice(i, i + tamanhoLote);
+          var resp = await sb.from("marcas").insert(lote);
+          if (resp.error) throw resp.error;
+        }
+        faixaResultado.style.background = "var(--vanilla)";
+        faixaResultado.style.color = "var(--vanilla-escuro)";
+        faixaResultado.textContent = registros.length + " marcas importadas" + (puladas > 0 ? ", " + puladas + " linhas puladas por não terem nome" : "") + ". Pode fechar esta janela.";
+        faixaResultado.hidden = false;
+        botaoImportar.hidden = true;
+        renderizarAba("marcas");
+      } catch (erro) {
+        console.error(erro);
+        faixaResultado.style.background = "";
+        faixaResultado.style.color = "";
+        faixaResultado.textContent = "Não consegui importar agora. Detalhe: " + (erro && erro.message ? erro.message : "erro desconhecido");
+        faixaResultado.hidden = false;
+        botaoImportar.disabled = false;
+        botaoImportar.textContent = "Importar " + linhas.length + " marcas";
+      }
+    });
+    corpo.appendChild(botaoImportar);
+
+    abrirModal(corpo, "Conferir colunas antes de importar");
   }
 
   /* =========================================================
