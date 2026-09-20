@@ -260,10 +260,10 @@
   var ABAS = [
     { grupo: "Meu site", itens: [
       { id: "portfolio", nome: "Portfólio", icone: ICONES.portfolio },
-      { id: "marcas", nome: "Marcas", icone: ICONES.marcas },
-      { id: "prospeccao", nome: "Prospecção", icone: ICONES.envelope }
+      { id: "marcas", nome: "Marcas", icone: ICONES.marcas }
     ]},
     { grupo: "Minha rotina", itens: [
+      { id: "prospeccao", nome: "Prospecção", icone: ICONES.envelope },
       { id: "calendario", nome: "Calendário", icone: ICONES.calendario },
       { id: "campanhas", nome: "Campanhas", icone: ICONES.campanhas },
       { id: "checklist", nome: "Checklist", icone: ICONES.checklist }
@@ -1298,11 +1298,11 @@
       if (contexto) c.appendChild(el("p", { class: "pr-metrica-contexto", texto: contexto }));
       return c;
     }
-    metricas.appendChild(cartaoMetrica(erros.erroMarcas ? null : marcasComEmail.length, "marcas na base com e-mail", "var(--vanilla-escuro)"));
-    metricas.appendChild(cartaoMetrica(destinatariosAgora.lista.length, "a enviar agora", "var(--azul)", "com o filtro de baixo"));
-    metricas.appendChild(cartaoMetrica(totalEnviadosHistorico, "já receberam", "var(--verde-sucesso)"));
-    metricas.appendChild(cartaoMetrica(totalFalhas, "falhas", "var(--erro)"));
-    metricas.appendChild(cartaoMetrica(totalDescadastrados, "descadastrados", "var(--amarelo-texto)"));
+    metricas.appendChild(cartaoMetrica(erros.erroMarcas ? null : marcasComEmail.length, "com e-mail na base", "var(--vanilla-escuro)", erros.erroMarcas ? "" : cacheMarcas.length + " marcas no total"));
+    metricas.appendChild(cartaoMetrica(destinatariosAgora.lista.length, "a enviar", "var(--azul)", "ainda não receberam nada"));
+    metricas.appendChild(cartaoMetrica(totalEnviadosHistorico, "já receberam", "var(--verde-sucesso)", "pelo menos um e-mail"));
+    metricas.appendChild(cartaoMetrica(totalFalhas, "falhas", "var(--erro)", "e-mails que voltaram"));
+    metricas.appendChild(cartaoMetrica(totalDescadastrados, "descadastrados", "var(--amarelo-texto)", "responderam SAIR"));
     container.appendChild(metricas);
 
     if (!erros.erroMarcas && marcasComEmail.length === 0) {
@@ -1413,9 +1413,22 @@
     var atualizarPrevia = ganchos.atualizarPrevia;
     var atualizarContagem = ganchos.atualizarContagem;
 
-    // ---- escolher pra quem vai ----
+    // ---- como vou mandar (primeiro cartão) ----
+    var cartaoComoMandar = el("div", { class: "cartao" });
+    cartaoComoMandar.appendChild(el("p", { class: "cartao-titulo", texto: "Como vou mandar" }));
+    var escolhaEnvio = el("div", { class: "pr-modo-escolha" });
+    var botaoEnvioAutomatico = el("button", { type: "button", class: "pr-modo-botao", texto: "Automático, pelo Resend", "aria-pressed": pr.modoEnvio === "automatico" ? "true" : "false" });
+    var botaoEnvioRascunho = el("button", { type: "button", class: "pr-modo-botao", texto: "Rascunho, eu mesma envio", "aria-pressed": pr.modoEnvio === "rascunho" ? "true" : "false" });
+    escolhaEnvio.appendChild(botaoEnvioAutomatico);
+    escolhaEnvio.appendChild(botaoEnvioRascunho);
+    cartaoComoMandar.appendChild(escolhaEnvio);
+    var explicacaoEnvio = el("div", { class: "aviso-secao", style: "background:var(--gelo);color:var(--texto-suave);margin-top:.8rem;margin-bottom:0;" });
+    cartaoComoMandar.appendChild(explicacaoEnvio);
+    container.appendChild(cartaoComoMandar);
+
+    // ---- para quem vai ----
     var cartaoDestinatarios = el("div", { class: "cartao" });
-    cartaoDestinatarios.appendChild(el("p", { class: "cartao-titulo", texto: "Escolher pra quem vai" }));
+    cartaoDestinatarios.appendChild(el("p", { class: "cartao-titulo", texto: "Para quem vai" }));
     cartaoDestinatarios.appendChild(el("p", { style: "font-size:.78rem;color:var(--texto-suave);margin-bottom:.8rem;", texto: "Os e-mails vêm da sua aba Marcas." }));
 
     var selectFiltro = el("select", { style: "width:100%;margin-bottom:.6rem;" });
@@ -1485,6 +1498,7 @@
     campoTextoSimples.input.style.minHeight = "10rem";
     campoTextoSimples.input.addEventListener("input", function () { pr.textoSimples = campoTextoSimples.input.value; atualizarPrevia(); });
     blocoModoTexto.appendChild(campoTextoSimples.wrap);
+    blocoModoTexto.appendChild(el("p", { style: "font-size:.74rem;color:var(--texto-suave);margin:-.5rem 0 .9rem;", texto: "Escreva normal. Linha em branco separa parágrafo, e link vira clicável sozinho." }));
 
     var linhaBotaoEmail = el("div", { class: "linha-campos" });
     var campoTextoBotao = campoTexto({ id: "pr-botao-texto", rotulo: "Texto do botão (opcional)", valor: pr.textoBotao });
@@ -1528,41 +1542,30 @@
     botaoModoHtml.addEventListener("click", function () { trocarModo("html"); });
     trocarModo(pr.modoEscrita);
 
-    container.appendChild(cartaoEscrever);
-
-    // ---- enviar ----
-    var cartaoEnviar = el("div", { class: "cartao" });
-    cartaoEnviar.appendChild(el("p", { class: "cartao-titulo", texto: "Enviar" }));
-
-    var escolhaEnvio = el("div", { class: "pr-modo-escolha" });
-    var botaoEnvioAutomatico = el("button", { type: "button", class: "pr-modo-botao", texto: "Automático (Resend)", "aria-pressed": pr.modoEnvio === "automatico" ? "true" : "false" });
-    var botaoEnvioRascunho = el("button", { type: "button", class: "pr-modo-botao", texto: "Rascunho manual (Gmail)", "aria-pressed": pr.modoEnvio === "rascunho" ? "true" : "false" });
-    escolhaEnvio.appendChild(botaoEnvioAutomatico);
-    escolhaEnvio.appendChild(botaoEnvioRascunho);
-    cartaoEnviar.appendChild(escolhaEnvio);
-    cartaoEnviar.appendChild(el("p", { style: "font-size:.76rem;color:var(--texto-suave);margin:.5rem 0 1rem;", texto: "Automático manda sozinho pelo Resend. Rascunho manual monta cada e-mail pra você copiar e enviar pelo Gmail, funciona mesmo sem domínio verificado no Resend." }));
-
-    var blocoAutomatico = el("div");
-    var blocoRascunho = el("div");
-    blocoRascunho.hidden = true;
-
+    var blocoAutomatico = el("div", { style: "margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--linha);" });
+    var blocoRascunho = el("div", { style: "margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--linha);" });
     montarBlocoEnvioAutomatico(blocoAutomatico, atualizarContagem);
     montarBlocoRascunho(blocoRascunho, atualizarContagem);
+    cartaoEscrever.appendChild(blocoAutomatico);
+    cartaoEscrever.appendChild(blocoRascunho);
 
+    container.appendChild(cartaoEscrever);
+
+    var TEXTOS_MODO_ENVIO = {
+      automatico: "No modo automático o disparo sai sozinho. Enquanto você não tiver um domínio verificado no Resend, ele só consegue entregar para o seu próprio e-mail.",
+      rascunho: "No modo rascunho nada sai sozinho: você monta a fila, e pra cada marca abre um rascunho pronto no Gmail pra você conferir e clicar em enviar."
+    };
     function trocarModoEnvio(novo) {
       pr.modoEnvio = novo;
       botaoEnvioAutomatico.setAttribute("aria-pressed", novo === "automatico" ? "true" : "false");
       botaoEnvioRascunho.setAttribute("aria-pressed", novo === "rascunho" ? "true" : "false");
       blocoAutomatico.hidden = novo !== "automatico";
       blocoRascunho.hidden = novo !== "rascunho";
+      explicacaoEnvio.textContent = TEXTOS_MODO_ENVIO[novo];
     }
     botaoEnvioAutomatico.addEventListener("click", function () { trocarModoEnvio("automatico"); });
     botaoEnvioRascunho.addEventListener("click", function () { trocarModoEnvio("rascunho"); });
     trocarModoEnvio(pr.modoEnvio);
-
-    cartaoEnviar.appendChild(blocoAutomatico);
-    cartaoEnviar.appendChild(blocoRascunho);
-    container.appendChild(cartaoEnviar);
 
     ganchos.refPrevia.contagem = linhaContagem;
   }
@@ -1772,18 +1775,28 @@
 
   function montarHistoricoProspeccao() {
     var cartao = el("div", { class: "cartao" });
-    cartao.appendChild(el("p", { class: "cartao-titulo", texto: "Histórico de envios" }));
-
-    var campoBusca = el("input", { type: "search", placeholder: "Buscar por e-mail", style: "margin-bottom:.9rem;width:100%;max-width:20rem;border:1.5px solid var(--linha);border-radius:999px;padding:.5rem 1rem;" });
-    cartao.appendChild(campoBusca);
+    var cabecalhoHistorico = el("div", { style: "display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-bottom:.9rem;" });
+    cabecalhoHistorico.appendChild(el("p", { class: "cartao-titulo", texto: "Tudo que já saiu", style: "margin-bottom:0;" }));
+    var campoBusca = el("input", { type: "search", placeholder: "Buscar por e-mail ou assunto", style: "width:100%;max-width:20rem;border:1.5px solid var(--linha);border-radius:999px;padding:.5rem 1rem;" });
+    cabecalhoHistorico.appendChild(campoBusca);
+    cartao.appendChild(cabecalhoHistorico);
 
     var areaTabela = el("div");
     cartao.appendChild(areaTabela);
+    var linhaResumo = el("p", { style: "font-size:.76rem;color:var(--texto-suave);margin-top:.6rem;" });
+    cartao.appendChild(linhaResumo);
+
+    var LIMITE_LINHAS_MOSTRADAS = 300;
 
     function desenhar() {
       var termo = campoBusca.value.trim().toLowerCase();
-      var linhas = cacheEmailEnvios.filter(function (e) { return !termo || (e.email || "").toLowerCase().indexOf(termo) !== -1; });
+      var linhas = cacheEmailEnvios.filter(function (e) {
+        return !termo ||
+          (e.email || "").toLowerCase().indexOf(termo) !== -1 ||
+          (e.assunto || "").toLowerCase().indexOf(termo) !== -1;
+      });
       areaTabela.innerHTML = "";
+      linhaResumo.textContent = "";
       if (cacheEmailEnvios.length === 0) {
         areaTabela.appendChild(estadoVazio("Nenhum envio registrado ainda."));
         return;
@@ -1792,26 +1805,29 @@
         areaTabela.appendChild(estadoVazio("Nenhum envio encontrado com essa busca."));
         return;
       }
+      var linhasMostradas = linhas.slice(0, LIMITE_LINHAS_MOSTRADAS);
       var wrap = el("div", { class: "tabela-scroll" });
       var tabela = el("table");
       tabela.appendChild(el("thead", {}, [el("tr", {}, [
-        el("th", { texto: "E-mail" }), el("th", { texto: "Assunto" }), el("th", { texto: "Quando" }), el("th", { texto: "Status" })
+        el("th", { texto: "Quando" }), el("th", { texto: "Para quem" }), el("th", { texto: "Assunto" }),
+        el("th", { texto: "Deu certo" }), el("th", { texto: "Erro" })
       ])]));
       var corpo = el("tbody");
-      linhas.slice(0, 300).forEach(function (e) {
+      linhasMostradas.forEach(function (e) {
         var tr = el("tr");
+        tr.appendChild(el("td", { texto: new Date(e.criado_em).toLocaleString("pt-BR") }));
         tr.appendChild(el("td", { texto: e.email || "" }));
         tr.appendChild(el("td", { texto: e.assunto || "" }));
-        tr.appendChild(el("td", { texto: new Date(e.criado_em).toLocaleString("pt-BR") }));
-        var tdStatus = el("td");
-        if (e.status === "ok") tdStatus.appendChild(el("span", { class: "pilula pilula-vanilla", texto: "Enviado" }));
-        else tdStatus.appendChild(el("span", { class: "pilula pilula-erro", texto: e.erro || "Erro" }));
-        tr.appendChild(tdStatus);
+        var tdCerto = el("td");
+        tdCerto.appendChild(el("span", { class: "pilula " + (e.status === "ok" ? "pilula-vanilla" : "pilula-erro"), texto: e.status === "ok" ? "sim" : "não" }));
+        tr.appendChild(tdCerto);
+        tr.appendChild(el("td", { texto: e.erro || "-" }));
         corpo.appendChild(tr);
       });
       tabela.appendChild(corpo);
       wrap.appendChild(tabela);
       areaTabela.appendChild(wrap);
+      linhaResumo.textContent = linhasMostradas.length + " de " + linhas.length + " envios.";
     }
     campoBusca.addEventListener("input", desenhar);
     desenhar();
