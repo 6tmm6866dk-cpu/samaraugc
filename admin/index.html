@@ -34,6 +34,10 @@
     --sombra-forte:0 18px 40px rgba(20,30,26,.14);
     --erro:#b3261e;
     --erro-fundo:#fbeae9;
+    --azul:#3d6a8a;
+    --azul-fundo:#e4edf2;
+    --verde-sucesso:#2f7d4f;
+    --verde-sucesso-fundo:#e3f1e7;
     --largura-menu:230px;
   }
   *,*::before,*::after{ box-sizing:border-box; }
@@ -335,6 +339,66 @@
   #campo-revisar-roteiro{ width:100%; min-height:9rem; border:1.5px solid var(--linha); border-radius:var(--raio-pequeno); padding:.8rem; margin-bottom:1.2rem; }
 
   .oculto-visual{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+  /* ===== prospecção ===== */
+  .pr-capa{
+    background:linear-gradient(135deg,var(--vanilla) 0%,var(--vanilla-escuro) 100%); color:#fff;
+    border-radius:var(--raio); padding:1.8rem 2rem; margin-bottom:1.2rem; position:relative; overflow:hidden;
+  }
+  .pr-capa-topo{ display:flex; justify-content:space-between; align-items:flex-start; gap:1.5rem; flex-wrap:wrap; }
+  .pr-capa-icone{
+    width:3rem; height:3rem; background:rgba(255,255,255,.22); border-radius:var(--raio-mini);
+    display:flex; align-items:center; justify-content:center; margin-bottom:.9rem;
+  }
+  .pr-capa h2{ font-size:1.3rem; margin-bottom:.3rem; }
+  .pr-capa-explicacao{ color:rgba(255,255,255,.88); font-size:.85rem; max-width:28rem; }
+  .pr-capa-numero{ font-size:2.3rem; font-weight:800; text-align:right; line-height:1; }
+  .pr-capa-numero-rotulo{ font-size:.76rem; color:rgba(255,255,255,.85); text-align:right; margin-top:.2rem; }
+  .pr-capa-etiquetas{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.3rem; }
+  .pr-capa-etiqueta{ background:rgba(255,255,255,.2); border-radius:999px; padding:.35rem .8rem; font-size:.74rem; font-weight:700; }
+
+  .pr-metricas{ display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:1rem; margin-bottom:1.2rem; }
+  .pr-metrica{ background:var(--branco); border:1px solid var(--linha); border-left:4px solid var(--cor,var(--vanilla-escuro)); border-radius:var(--raio-pequeno); padding:1rem 1.1rem; }
+  .pr-metrica-numero{ font-size:1.5rem; font-weight:800; color:var(--cor,var(--vanilla-escuro)); }
+  .pr-metrica-rotulo{ font-size:.78rem; color:var(--texto-suave); margin-top:.15rem; }
+  .pr-metrica-contexto{ font-size:.7rem; color:var(--texto-suave); margin-top:.3rem; }
+
+  .pr-corpo{ display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start; }
+  @media (max-width:1000px){ .pr-corpo{ grid-template-columns:1fr; } }
+
+  .pr-modo-escolha{ display:flex; gap:.5rem; margin-bottom:1rem; }
+  .pr-modo-botao{ flex:1; border:1.5px solid var(--linha); background:var(--branco); border-radius:var(--raio-mini); padding:.6rem; font-weight:700; font-size:.82rem; color:var(--texto-suave); text-align:center; }
+  .pr-modo-botao[aria-pressed="true"]{ background:var(--vanilla); border-color:var(--vanilla); color:var(--vanilla-escuro); }
+
+  .pr-palco{
+    position:sticky; top:5.5rem; background:#eef0ec; border-radius:var(--raio); padding:1.5rem;
+  }
+  .pr-ver-tela-cheia{ display:flex; justify-content:flex-end; margin-bottom:.8rem; }
+  .email-janela{ background:#fff; border-radius:var(--raio); box-shadow:var(--sombra-forte); overflow:hidden; max-width:32rem; margin:0 auto; }
+  .email-janela-cabecalho{ padding:1.1rem 1.3rem; border-bottom:1px solid var(--linha); display:flex; gap:.8rem; align-items:flex-start; }
+  .email-janela-avatar{
+    width:2.3rem; height:2.3rem; border-radius:50%; background:var(--vanilla); color:var(--vanilla-escuro);
+    display:flex; align-items:center; justify-content:center; font-weight:800; flex:none; font-size:.9rem;
+  }
+  .email-janela-assunto{ font-weight:800; font-size:1rem; margin-bottom:.15rem; word-break:break-word; }
+  .email-janela-de{ font-size:.78rem; color:var(--texto-suave); }
+  .email-janela-corpo{ padding:1.3rem; max-width:560px; margin:0 auto; }
+  .pr-dica-teste{ font-size:.76rem; color:var(--texto-suave); text-align:center; margin-top:.9rem; }
+
+  .pr-tela-cheia-fundo{
+    position:fixed; inset:0; background:rgba(20,30,26,.6); z-index:450; display:flex; align-items:center; justify-content:center; padding:2rem 1rem; overflow-y:auto;
+  }
+  .pr-tela-cheia-fundo[hidden]{ display:none; }
+  .pr-tela-cheia-fechar{
+    position:absolute; top:1rem; right:1rem; width:2.4rem; height:2.4rem; border-radius:50%; border:none;
+    background:#fff; font-size:1.3rem; color:var(--texto-suave);
+  }
+
+  .pr-fila-item{ background:var(--branco); border:1px solid var(--linha); border-radius:var(--raio-pequeno); padding:1.2rem; margin-bottom:.9rem; }
+  .pr-fila-corpo{ white-space:pre-wrap; font-size:.85rem; background:var(--gelo); border-radius:var(--raio-mini); padding:.9rem; margin:.7rem 0; max-height:14rem; overflow-y:auto; }
+
+  .pr-progresso-fundo{ height:10px; background:var(--gelo); border-radius:999px; overflow:hidden; margin:1rem 0; }
+  .pr-progresso-barra{ display:block; height:100%; background:var(--vanilla-escuro); border-radius:999px; transition:width .2s ease; }
 </style>
 </head>
 <body>
@@ -377,6 +441,11 @@
     <button type="button" class="modal-fechar" id="modal-fechar" aria-label="Fechar">&times;</button>
     <div id="modal-conteudo"></div>
   </div>
+</div>
+
+<div class="pr-tela-cheia-fundo" id="pr-tela-cheia-fundo" hidden>
+  <button type="button" class="pr-tela-cheia-fechar" id="pr-tela-cheia-fechar" aria-label="Fechar">&times;</button>
+  <div id="pr-tela-cheia-conteudo" style="width:100%;max-width:40rem;"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
