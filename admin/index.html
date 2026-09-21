@@ -399,6 +399,57 @@
 
   .pr-progresso-fundo{ height:10px; background:var(--gelo); border-radius:999px; overflow:hidden; margin:1rem 0; }
   .pr-progresso-barra{ display:block; height:100%; background:var(--vanilla-escuro); border-radius:999px; transition:width .2s ease; }
+
+  /* ===== insights (quadro estilo Notion) ===== */
+  .ins-aviso{ font-size:.82rem; color:var(--texto-suave); margin-bottom:1.1rem; max-width:38rem; }
+  .ins-quadro{ display:flex; gap:1.1rem; align-items:flex-start; overflow-x:auto; padding-bottom:.5rem; }
+  .ins-coluna{
+    background:var(--gelo); border-radius:var(--raio); padding:.9rem; flex:1 0 16rem; min-width:16rem; max-width:20rem;
+  }
+  .ins-coluna-cabecalho{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.8rem; padding:0 .2rem; }
+  .ins-coluna-titulo{ display:flex; align-items:center; gap:.5rem; font-weight:800; font-size:.88rem; }
+  .ins-coluna-ponto{ width:.6rem; height:.6rem; border-radius:50%; background:var(--cor,var(--vanilla-escuro)); flex:none; }
+  .ins-coluna-contagem{ font-size:.74rem; color:var(--texto-suave); font-weight:700; background:var(--branco); border-radius:999px; padding:.1rem .5rem; }
+  .ins-coluna-add{
+    background:none; border:1px dashed var(--linha); border-radius:var(--raio-mini); width:100%; padding:.55rem;
+    color:var(--texto-suave); font-weight:700; font-size:.8rem; margin-top:.5rem;
+  }
+  .ins-coluna-add:hover{ border-color:var(--vanilla-escuro); color:var(--vanilla-escuro); }
+  .ins-coluna-cards{ display:flex; flex-direction:column; gap:.7rem; min-height:2rem; }
+  .ins-coluna-cards.arrastando-sobre{ background:rgba(0,0,0,.03); border-radius:var(--raio-mini); }
+
+  .ins-cartao{
+    background:var(--branco); border:1px solid var(--linha); border-radius:var(--raio-pequeno); overflow:hidden;
+    cursor:grab; box-shadow:var(--sombra); transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .ins-cartao:hover{ box-shadow:var(--sombra-forte); }
+  .ins-cartao.arrastando{ opacity:.4; }
+  .ins-cartao-capa{ width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--gelo); }
+  .ins-cartao-capa-video{
+    width:100%; aspect-ratio:16/9; background:var(--vanilla-escuro); color:#fff; display:flex;
+    align-items:center; justify-content:center; font-size:1.6rem;
+  }
+  .ins-cartao-corpo{ padding:.7rem .8rem; }
+  .ins-cartao-texto{
+    font-size:.83rem; margin:0; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;
+    color:var(--texto); white-space:pre-wrap;
+  }
+  .ins-cartao-texto:empty::before{ content:"Sem texto ainda, clique pra editar."; color:var(--texto-suave); font-style:italic; }
+  .ins-cartao-rodape{ display:flex; align-items:center; gap:.4rem; margin-top:.55rem; font-size:.7rem; color:var(--texto-suave); }
+
+  .ins-media-grade{ display:grid; grid-template-columns:repeat(auto-fill,minmax(6rem,1fr)); gap:.6rem; margin:.8rem 0; }
+  .ins-media-item{ position:relative; border-radius:var(--raio-mini); overflow:hidden; background:var(--gelo); aspect-ratio:1; }
+  .ins-media-item img, .ins-media-item video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ins-media-remover{
+    position:absolute; top:.25rem; right:.25rem; width:1.5rem; height:1.5rem; border-radius:50%; border:none;
+    background:rgba(20,30,26,.65); color:#fff; font-size:.9rem; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .ins-upload-area{
+    border:1.5px dashed var(--linha); border-radius:var(--raio-mini); padding:1rem; text-align:center;
+    font-size:.8rem; color:var(--texto-suave); cursor:pointer;
+  }
+  .ins-upload-area:hover{ border-color:var(--vanilla-escuro); color:var(--vanilla-escuro); }
+  .ins-upload-area.arrastando-arquivo{ border-color:var(--vanilla-escuro); background:var(--gelo); }
 </style>
 </head>
 <body>

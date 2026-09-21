@@ -38,7 +38,10 @@
     chevron: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
     envelope: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
     copiar: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
-    expandir: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>'
+    expandir: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+    insight: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 2z"/></svg>',
+    imagem: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+    video: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
   };
 
   /* =========================================================
@@ -266,6 +269,7 @@
       { id: "prospeccao", nome: "Prospecção", icone: ICONES.envelope },
       { id: "calendario", nome: "Calendário", icone: ICONES.calendario },
       { id: "campanhas", nome: "Campanhas", icone: ICONES.campanhas },
+      { id: "insights", nome: "Insights", icone: ICONES.insight },
       { id: "checklist", nome: "Checklist", icone: ICONES.checklist }
     ]}
   ];
@@ -283,7 +287,7 @@
     });
   }
 
-  var TITULOS_ABA = { portfolio: "Portfólio", marcas: "Marcas", prospeccao: "Prospecção", calendario: "Calendário", campanhas: "Campanhas", checklist: "Checklist do portfólio" };
+  var TITULOS_ABA = { portfolio: "Portfólio", marcas: "Marcas", prospeccao: "Prospecção", calendario: "Calendário", campanhas: "Campanhas", insights: "Insights", checklist: "Checklist do portfólio" };
 
   function irParaAba(aba) {
     estado.abaAtual = aba;
@@ -305,6 +309,7 @@
     else if (aba === "prospeccao") renderizarProspeccao(container);
     else if (aba === "calendario") renderizarCalendario(container);
     else if (aba === "campanhas") renderizarCampanhas(container);
+    else if (aba === "insights") renderizarInsights(container);
     else if (aba === "checklist") renderizarChecklist(container);
     else container.innerHTML = "";
   }
@@ -2576,6 +2581,301 @@
       secaoEl.appendChild(corpoB);
       corpo.appendChild(secaoEl);
     });
+  }
+
+  /* =========================================================
+     SEÇÃO INSIGHTS (quadro de ideias, estilo Notion)
+     ========================================================= */
+  var COLUNAS_INSIGHTS = [
+    { chave: "semente", nome: "Semente", cor: "var(--amarelo-texto)" },
+    { chave: "amadurecida", nome: "Amadurecida", cor: "var(--azul)" },
+    { chave: "pronta", nome: "Pronta", cor: "var(--verde-sucesso)" }
+  ];
+
+  var cacheInsights = [];
+  var itemArrastadoInsight = null;
+
+  async function carregarInsights() {
+    var resp = await consultarTabela("insights", function (q) { return q.order("ordem", { ascending: true }); });
+    cacheInsights = resp.dados;
+    return resp.erro;
+  }
+
+  function elementoInsightDepoisDoPonto(container, y) {
+    var elementos = Array.prototype.slice.call(container.querySelectorAll(".ins-cartao:not(.arrastando)"));
+    var maisProximo = { distancia: Number.NEGATIVE_INFINITY, elemento: null };
+    elementos.forEach(function (elemento) {
+      var caixa = elemento.getBoundingClientRect();
+      var deslocamento = y - caixa.top - caixa.height / 2;
+      if (deslocamento < 0 && deslocamento > maisProximo.distancia) {
+        maisProximo = { distancia: deslocamento, elemento: elemento };
+      }
+    });
+    return maisProximo.elemento;
+  }
+
+  async function persistirColunaInsights(categoria) {
+    var colEl = document.querySelector('.ins-coluna-cards[data-categoria="' + categoria + '"]');
+    if (!colEl) return;
+    var cartoes = Array.prototype.slice.call(colEl.querySelectorAll(".ins-cartao"));
+    for (var i = 0; i < cartoes.length; i++) {
+      var id = cartoes[i].getAttribute("data-id");
+      var insightLocal = cacheInsights.find(function (x) { return x.id === id; });
+      if (insightLocal) { insightLocal.categoria = categoria; insightLocal.ordem = i + 1; }
+      try {
+        await sb.from("insights").update({ categoria: categoria, ordem: i + 1 }).eq("id", id);
+      } catch (erro) { console.error("Não consegui salvar a nova posição.", erro); }
+    }
+  }
+
+  function criarCartaoInsight(insight) {
+    var card = el("div", { class: "ins-cartao", "data-id": insight.id });
+    var midias = insight.midias || [];
+    var primeiraMidia = midias[0];
+    if (primeiraMidia) {
+      if (primeiraMidia.tipo === "video") {
+        card.appendChild(el("div", { class: "ins-cartao-capa-video", html: ICONES.video }));
+      } else {
+        card.appendChild(el("img", { class: "ins-cartao-capa", src: primeiraMidia.url, alt: "" }));
+      }
+    }
+    var corpo = el("div", { class: "ins-cartao-corpo" });
+    corpo.appendChild(el("p", { class: "ins-cartao-texto", texto: insight.texto || "" }));
+    if (midias.length > 0) {
+      var rodape = el("div", { class: "ins-cartao-rodape" });
+      rodape.appendChild(el("span", { html: ICONES.imagem + " " + midias.length, style: "display:inline-flex;align-items:center;gap:.25rem;" }));
+      corpo.appendChild(rodape);
+    }
+    card.appendChild(corpo);
+
+    card.addEventListener("click", function () { abrirEditorInsight(insight); });
+    card.draggable = true;
+    card.addEventListener("dragstart", function () {
+      itemArrastadoInsight = card;
+      setTimeout(function () { card.classList.add("arrastando"); }, 0);
+    });
+    card.addEventListener("dragend", function () {
+      card.classList.remove("arrastando");
+      document.querySelectorAll(".ins-coluna-cards").forEach(function (c) { c.classList.remove("arrastando-sobre"); });
+      if (!itemArrastadoInsight) return;
+      itemArrastadoInsight = null;
+      var colunaFinalEl = card.closest(".ins-coluna-cards");
+      if (colunaFinalEl) persistirColunaInsights(colunaFinalEl.getAttribute("data-categoria"));
+    });
+    return card;
+  }
+
+  async function renderizarInsights(container) {
+    container.innerHTML = "";
+    var erro = await carregarInsights();
+    if (erro) container.appendChild(avisoSecao(erro));
+
+    container.appendChild(el("p", { class: "ins-aviso", texto: "Seu quadro de ideias. Arraste o cartão entre as colunas conforme a ideia evolui, e clique num cartão pra escrever ou anexar fotos e vídeos." }));
+
+    var quadro = el("div", { class: "ins-quadro" });
+    COLUNAS_INSIGHTS.forEach(function (coluna) {
+      var itensColuna = cacheInsights.filter(function (i) { return i.categoria === coluna.chave; });
+      var colEl = el("div", { class: "ins-coluna" });
+
+      var cabecalho = el("div", { class: "ins-coluna-cabecalho" });
+      cabecalho.appendChild(el("span", { class: "ins-coluna-titulo" }, [
+        el("span", { class: "ins-coluna-ponto", style: "--cor:" + coluna.cor + ";" }),
+        el("span", { texto: coluna.nome })
+      ]));
+      cabecalho.appendChild(el("span", { class: "ins-coluna-contagem", texto: String(itensColuna.length) }));
+      colEl.appendChild(cabecalho);
+
+      var cardsEl = el("div", { class: "ins-coluna-cards", "data-categoria": coluna.chave });
+      itensColuna.forEach(function (insight) { cardsEl.appendChild(criarCartaoInsight(insight)); });
+      colEl.appendChild(cardsEl);
+
+      cardsEl.addEventListener("dragover", function (evento) {
+        evento.preventDefault();
+        if (!itemArrastadoInsight) return;
+        cardsEl.classList.add("arrastando-sobre");
+        var apos = elementoInsightDepoisDoPonto(cardsEl, evento.clientY);
+        if (apos == null) cardsEl.appendChild(itemArrastadoInsight);
+        else cardsEl.insertBefore(itemArrastadoInsight, apos);
+      });
+      cardsEl.addEventListener("dragleave", function (evento) {
+        if (evento.target === cardsEl) cardsEl.classList.remove("arrastando-sobre");
+      });
+      cardsEl.addEventListener("drop", function (evento) {
+        evento.preventDefault();
+        cardsEl.classList.remove("arrastando-sobre");
+      });
+
+      var botaoAdd = el("button", { type: "button", class: "ins-coluna-add", html: ICONES.mais + " Novo cartão" });
+      botaoAdd.addEventListener("click", function () { abrirEditorInsight(null, coluna.chave); });
+      colEl.appendChild(botaoAdd);
+
+      quadro.appendChild(colEl);
+    });
+    container.appendChild(quadro);
+  }
+
+  async function subirMidiaInsight(arquivo) {
+    var extensao = (arquivo.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    var caminho = Date.now() + "_" + Math.random().toString(36).slice(2, 8) + (extensao ? "." + extensao : "");
+    var resp = await sb.storage.from("insights").upload(caminho, arquivo);
+    if (resp.error) throw resp.error;
+    var urlPublica = sb.storage.from("insights").getPublicUrl(caminho).data.publicUrl;
+    var tipo = arquivo.type && arquivo.type.indexOf("video") === 0 ? "video" : "imagem";
+    return { url: urlPublica, caminho: caminho, tipo: tipo, nome: arquivo.name };
+  }
+
+  function abrirEditorInsight(insight, categoriaPadrao) {
+    var ehEdicao = !!insight;
+    var estadoLocal = {
+      texto: insight ? insight.texto : "",
+      categoria: insight ? insight.categoria : (categoriaPadrao || "semente"),
+      midias: insight ? (insight.midias || []).slice() : []
+    };
+
+    var corpo = el("div");
+    var campoTextoInsight = campoTextarea({ id: "ins-texto", rotulo: "Texto da ideia", valor: estadoLocal.texto });
+    campoTextoInsight.input.style.minHeight = "8rem";
+    corpo.appendChild(campoTextoInsight.wrap);
+
+    var campoCategoria = campoSelect({
+      id: "ins-categoria", rotulo: "Categoria", valor: estadoLocal.categoria,
+      opcoes: COLUNAS_INSIGHTS.map(function (c) { return { valor: c.chave, texto: c.nome }; })
+    });
+    corpo.appendChild(campoCategoria.wrap);
+
+    corpo.appendChild(el("p", { style: "font-weight:700;font-size:.82rem;margin:.9rem 0 .5rem;", texto: "Fotos e vídeos" }));
+    var gradeMidias = el("div", { class: "ins-media-grade" });
+    corpo.appendChild(gradeMidias);
+
+    function desenharMidias() {
+      gradeMidias.innerHTML = "";
+      estadoLocal.midias.forEach(function (m, indice) {
+        var item = el("div", { class: "ins-media-item" });
+        if (m.tipo === "video") item.appendChild(el("video", { src: m.url, muted: "true" }));
+        else item.appendChild(el("img", { src: m.url, alt: "" }));
+        var botaoRemover = el("button", { type: "button", class: "ins-media-remover", html: "&times;", "aria-label": "Remover arquivo" });
+        botaoRemover.addEventListener("click", async function (evento) {
+          evento.stopPropagation();
+          botaoRemover.disabled = true;
+          try {
+            if (m.caminho) await sb.storage.from("insights").remove([m.caminho]);
+            estadoLocal.midias.splice(indice, 1);
+            if (ehEdicao) await sb.from("insights").update({ midias: estadoLocal.midias }).eq("id", insight.id);
+            desenharMidias();
+          } catch (erro) {
+            alert("Não consegui remover esse arquivo agora. Tente de novo.");
+            console.error(erro);
+            botaoRemover.disabled = false;
+          }
+        });
+        item.appendChild(botaoRemover);
+        gradeMidias.appendChild(item);
+      });
+    }
+    desenharMidias();
+
+    var areaUpload = el("div", { class: "ins-upload-area", texto: "Clique ou arraste fotos e vídeos aqui" });
+    var inputArquivo = el("input", { type: "file", accept: "image/*,video/*", multiple: "true", class: "oculto-visual" });
+    corpo.appendChild(areaUpload);
+    corpo.appendChild(inputArquivo);
+
+    async function processarArquivos(arquivos) {
+      var lista = Array.prototype.slice.call(arquivos);
+      if (lista.length === 0) return;
+      for (var i = 0; i < lista.length; i++) {
+        areaUpload.textContent = "Enviando " + (i + 1) + " de " + lista.length + "...";
+        try {
+          var midia = await subirMidiaInsight(lista[i]);
+          estadoLocal.midias.push(midia);
+        } catch (erro) {
+          console.error(erro);
+          alert('Não consegui enviar "' + lista[i].name + '". Detalhe: ' + (erro && erro.message ? erro.message : "erro desconhecido"));
+        }
+      }
+      areaUpload.textContent = "Clique ou arraste fotos e vídeos aqui";
+      desenharMidias();
+      if (ehEdicao) {
+        try { await sb.from("insights").update({ midias: estadoLocal.midias }).eq("id", insight.id); } catch (erroSalvar) { console.error(erroSalvar); }
+      }
+    }
+
+    areaUpload.addEventListener("click", function () { inputArquivo.click(); });
+    areaUpload.addEventListener("dragover", function (evento) { evento.preventDefault(); areaUpload.classList.add("arrastando-arquivo"); });
+    areaUpload.addEventListener("dragleave", function () { areaUpload.classList.remove("arrastando-arquivo"); });
+    areaUpload.addEventListener("drop", function (evento) {
+      evento.preventDefault();
+      areaUpload.classList.remove("arrastando-arquivo");
+      processarArquivos(evento.dataTransfer.files);
+    });
+    inputArquivo.addEventListener("change", function () {
+      processarArquivos(inputArquivo.files);
+      inputArquivo.value = "";
+    });
+
+    var faixaErro = avisoSecao(""); faixaErro.hidden = true;
+    corpo.appendChild(faixaErro);
+
+    var linhaBotoes = el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-top:1rem;" });
+    var botaoSalvar = el("button", { type: "button", class: "botao botao-primario", texto: ehEdicao ? "Salvar" : "Criar cartão" });
+    linhaBotoes.appendChild(botaoSalvar);
+    if (ehEdicao) {
+      var botaoApagar = el("button", { type: "button", class: "botao botao-perigo", html: ICONES.apagar + " Apagar" });
+      botaoApagar.addEventListener("click", function () { confirmarApagarInsight(insight); });
+      linhaBotoes.appendChild(botaoApagar);
+    }
+    corpo.appendChild(linhaBotoes);
+
+    botaoSalvar.addEventListener("click", async function () {
+      botaoSalvar.disabled = true;
+      var registro = {
+        texto: campoTextoInsight.input.value,
+        categoria: campoCategoria.input.value,
+        midias: estadoLocal.midias
+      };
+      try {
+        if (ehEdicao) {
+          var resp1 = await sb.from("insights").update(registro).eq("id", insight.id);
+          if (resp1.error) throw resp1.error;
+        } else {
+          registro.ordem = 9999;
+          var resp2 = await sb.from("insights").insert(registro);
+          if (resp2.error) throw resp2.error;
+        }
+        fecharModal();
+        renderizarAba("insights");
+      } catch (erro) {
+        console.error(erro);
+        faixaErro.textContent = "Não consegui salvar agora. Detalhe: " + (erro && erro.message ? erro.message : "erro desconhecido");
+        faixaErro.hidden = false;
+        botaoSalvar.disabled = false;
+      }
+    });
+
+    abrirModal(corpo, ehEdicao ? "Editar cartão" : "Novo cartão");
+  }
+
+  function confirmarApagarInsight(insight) {
+    var texto = el("p", { texto: "Tem certeza que quer apagar este cartão? Essa ação não pode ser desfeita.", style: "margin-bottom:1.2rem;font-size:.88rem;" });
+    var botoes = el("div", { style: "display:flex;gap:.6rem;justify-content:flex-end;" });
+    var cancelar = el("button", { type: "button", class: "botao", texto: "Cancelar" });
+    cancelar.addEventListener("click", fecharModal);
+    var apagar = el("button", { type: "button", class: "botao botao-perigo", texto: "Apagar" });
+    apagar.addEventListener("click", async function () {
+      try {
+        var caminhos = (insight.midias || []).map(function (m) { return m.caminho; }).filter(Boolean);
+        if (caminhos.length > 0) await sb.storage.from("insights").remove(caminhos);
+        var resp = await sb.from("insights").delete().eq("id", insight.id);
+        if (resp.error) throw resp.error;
+        fecharModal();
+        renderizarAba("insights");
+      } catch (erro) {
+        alert("Não consegui apagar agora. Tente de novo.");
+        console.error(erro);
+      }
+    });
+    botoes.appendChild(cancelar);
+    botoes.appendChild(apagar);
+    abrirModal([texto, botoes], "Confirmar exclusão");
   }
 
   /* =========================================================
