@@ -2587,9 +2587,9 @@
      SEÇÃO INSIGHTS (quadro de ideias, estilo Notion)
      ========================================================= */
   var COLUNAS_INSIGHTS = [
-    { chave: "semente", nome: "Semente", cor: "var(--amarelo-texto)" },
-    { chave: "amadurecida", nome: "Amadurecida", cor: "var(--azul)" },
-    { chave: "pronta", nome: "Pronta", cor: "var(--verde-sucesso)" }
+    { chave: "semente", nome: "Semente", emoji: "🌱" },
+    { chave: "amadurecida", nome: "Brotando", emoji: "🌿" },
+    { chave: "pronta", nome: "Madura", emoji: "🌳" }
   ];
 
   var cacheInsights = [];
@@ -2679,7 +2679,7 @@
 
       var cabecalho = el("div", { class: "ins-coluna-cabecalho" });
       cabecalho.appendChild(el("span", { class: "ins-coluna-titulo" }, [
-        el("span", { class: "ins-coluna-ponto", style: "--cor:" + coluna.cor + ";" }),
+        el("span", { texto: coluna.emoji, "aria-hidden": "true" }),
         el("span", { texto: coluna.nome })
       ]));
       cabecalho.appendChild(el("span", { class: "ins-coluna-contagem", texto: String(itensColuna.length) }));
